@@ -1,0 +1,64 @@
+/* 디자인 토큰: 색상, 간격, 폰트 등. 값은 디자인 확정 후 여기서만 수정한다. */
+:root {
+  /* color */
+  --color-bg: #f7f8fc;
+  --color-surface: #ffffff;
+  --color-text: #1f2330;
+  --color-text-sub: #6b7084;
+  --color-border: #e2e5ee;
+  /* primary: 디자인 시안의 파란 버튼 색 추정값. 디자인 확정 후 교체 */
+  --color-primary: #3d7bd9;
+  --color-primary-strong: #2f66bd;
+  --color-on-primary: #ffffff;
+  --color-danger: #e5484d;
+  --color-success: #30a46c;
+  --color-backdrop: rgba(15, 18, 30, 0.45);
+
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* font */
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  /* 화면 폭에 따라 자연스럽게 커지는 글자 크기 */
+  --font-size-sm: clamp(13px, 0.25vw + 12px, 14px);
+  --font-size-md: clamp(15px, 0.3vw + 14px, 16px);
+  --font-size-lg: clamp(17px, 0.6vw + 15px, 20px);
+  --font-size-xl: clamp(20px, 1.2vw + 16px, 28px);
+
+  /* layout */
+  --content-max-width: 1024px;
+  --page-padding: var(--space-4); /* 모바일 16px → 태블릿 24px → 데스크톱 32px */
+  --topbar-height: 56px;
+  --drawer-width: 280px;
+  --touch-min: 44px; /* 버튼·입력칸 최소 터치 크기 */
+
+  /* breakpoints (미디어쿼리에는 변수를 쓸 수 없어 값을 직접 쓴다)
+     --bp-tablet: 768px;  --bp-desktop: 1024px; */
+
+  /* shadow */
+  --shadow-sm: 0 1px 3px rgba(15, 18, 30, 0.08);
+  --shadow-md: 0 8px 24px rgba(15, 18, 30, 0.12);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-padding: var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-padding: var(--space-6);
+  }
+}
