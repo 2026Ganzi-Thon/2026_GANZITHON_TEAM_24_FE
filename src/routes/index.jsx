@@ -1,6 +1,9 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import AuthLayout from '../layouts/AuthLayout';
+import LoginPage from '../features/auth/LoginPage';
+import SignupPage from '../features/auth/SignupPage';
+import SplashPage from '../features/auth/SplashPage';
 import { useAuth } from '../features/auth/useAuth';
 
 // 로그인 가드 on/off. 로그인 기능이 완성되기 전까지는 false 로 두고 모든 화면에 바로 들어간다.
@@ -19,9 +22,11 @@ function RequireAuth({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* 메뉴 없는 화면 (로그인, 회원가입 등) */}
+      {/* 메뉴 없는 화면 (시작, 로그인, 회원가입 등) */}
       <Route element={<AuthLayout />}>
-        {/* 예: <Route path="/login" element={<LoginPage />} /> */}
+        <Route index element={<SplashPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
       </Route>
 
       {/* 로그인 후 화면 (TopBar + Drawer) */}
@@ -32,7 +37,7 @@ export default function AppRoutes() {
           </RequireAuth>
         }
       >
-        <Route path="/" element={null} />
+        <Route path="/home" element={null} />
         {/* 각 파트 라우트를 여기에 추가 */}
       </Route>
 
