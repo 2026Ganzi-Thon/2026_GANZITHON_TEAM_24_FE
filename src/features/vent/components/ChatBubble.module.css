@@ -13,10 +13,22 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-  max-width: 78%;
+  max-width: 88%;
+}
+
+/* 말풍선 + 옆의 시각(아래쪽 정렬) */
+.line {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.user .line {
+  justify-content: flex-end;
 }
 
 .bubble {
+  min-width: 0;
   padding: 12px 16px;
   border: 1px solid #d5e0f4;
   border-radius: 20px;
@@ -35,9 +47,10 @@
 }
 
 .time {
-  padding-left: 8px;
+  flex-shrink: 0;
   font-size: 11px;
   color: #8793ad;
+  white-space: nowrap;
 }
 
 .dots {

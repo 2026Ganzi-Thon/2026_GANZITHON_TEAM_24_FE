@@ -12,7 +12,7 @@ function Chip({ label, active, unsure = false, onClick }) {
   );
 }
 
-// 감정 후보 카드. emotions 는 서버가 준 후보, "아직 모르겠어요"는 항상 따로 붙는다.
+// 감정 후보 카드. emotions 는 서버가 준 후보, "해당없음"은 항상 따로 붙는다.
 export default function EmotionChips({ emotions, selected, onToggle }) {
   return (
     <section className={styles.card} aria-label="감정 후보">

@@ -1,6 +1,7 @@
 import { Route } from 'react-router-dom';
-import { VENT_PATHS } from '../../features/vent/steps';
+import { CRISIS_PATH, VENT_PATHS } from '../../features/vent/steps';
 import CalmPage from './CalmPage';
+import CrisisSupportPage from './CrisisSupportPage';
 import EmotionPickPage from './EmotionPickPage';
 import VentChatPage from './VentChatPage';
 
@@ -10,5 +11,6 @@ export const ventRoutes = (
     <Route path={VENT_PATHS.chat} element={<VentChatPage />} />
     <Route path={VENT_PATHS.emotions} element={<EmotionPickPage />} />
     <Route path={VENT_PATHS.calm} element={<CalmPage />} />
+    <Route path={CRISIS_PATH} element={<CrisisSupportPage />} />
   </>
 );

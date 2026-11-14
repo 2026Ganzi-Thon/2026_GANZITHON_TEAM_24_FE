@@ -15,6 +15,7 @@ export const STEP_NO = {
   calm: 3,
 };
 
+export const CRISIS_PATH = '/vent/crisis'; // 위기지원안내 (/vent 응답이 risk: DANGER 일 때)
+
 // TODO: 아직 만들지 않은 화면. 만들면 경로를 채운다.
-export const CRISIS_PATH = '/vent/crisis'; // 위기지원안내 (risk: DANGER)
 export const AFTER_CALM_PATH = null; // 진정 다음 화면 (원했던 반응)

@@ -4,7 +4,8 @@ import { MAX_EMOTIONS, UNSURE_LABEL } from './constants';
 // 하소연 흐름 상태. 메모리에만 둔다 (persist, localStorage, sessionStorage 금지).
 // 새로고침하면 사라지고, 나가기/버리기에서 reset()으로 통째로 비운다.
 const initialState = {
-  messages: [], // 하소연 대화 [{ id, role: 'user' | 'assistant', content, at }]
+  messages: [], // 하소연 대화 [{ id, role: 'user' | 'assistant', content, at, local }]
+  //                local: true 는 화면에만 보이는 말풍선("더 이야기 하고 싶어!" 등). 서버로 보내지 않는다
   texts: [], // 사용자 글만 따로 보관. 감정 "선택 완료"에서 지운다
   result: null, // POST /vent/result 응답 (emotions, needs, wantedReaction, situation, plan)
   selectedEmotions: [],
@@ -16,9 +17,9 @@ let nextMessageId = 1;
 export const useVentStore = create((set) => ({
   ...initialState,
 
-  addMessage: (role, content) =>
+  addMessage: (role, content, { local = false } = {}) =>
     set((s) => ({
-      messages: [...s.messages, { id: nextMessageId++, role, content, at: Date.now() }],
+      messages: [...s.messages, { id: nextMessageId++, role, content, at: Date.now(), local }],
     })),
 
   setLoading: (loading) => set({ loading }),
@@ -27,7 +28,10 @@ export const useVentStore = create((set) => ({
   commitResult: (result) =>
     set((s) => ({
       result,
-      texts: [...s.texts, ...s.messages.filter((m) => m.role === 'user').map((m) => m.content)],
+      texts: [
+        ...s.texts,
+        ...s.messages.filter((m) => m.role === 'user' && !m.local).map((m) => m.content),
+      ],
       messages: [],
       selectedEmotions: [],
     })),
@@ -39,7 +43,7 @@ export const useVentStore = create((set) => ({
       selectedEmotions: s.selectedEmotions.filter((e) => e === UNSURE_LABEL),
     })),
 
-  // "아직 모르겠어요"는 단독 선택, 나머지는 최대 3개
+  // "해당없음"은 단독 선택, 나머지는 최대 3개
   toggleEmotion: (label) =>
     set((s) => {
       const { selectedEmotions: picked } = s;

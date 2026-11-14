@@ -10,7 +10,7 @@ import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
 import VentHeader from '../../features/vent/components/VentHeader';
 import styles from './Vent.module.css';
 
-// 2단계: 감정 후보 정하기 (서버가 준 후보 중 최대 3개, 또는 "아직 모르겠어요" 하나)
+// 2단계: 감정 후보 정하기 (서버가 준 후보 중 최대 3개, 또는 "해당없음" 하나)
 export default function EmotionPickPage() {
   const navigate = useNavigate();
   const result = useVentStore((s) => s.result);
@@ -37,14 +37,14 @@ export default function EmotionPickPage() {
       />
       <main className={styles.body}>
         <div className={styles.scroll}>
-          <ChatBubble time={now}>
+          <ChatBubble time={now} timePosition="below">
             {`${NICKNAME}의 이야기를 들어보니 이런 마음이 느껴졌어. 지금 ${NICKNAME}의 마음과 가장 가까운 감정을 골라볼래? 딱 하나가 아니어도 괜찮아!`}
           </ChatBubble>
           <EmotionChips emotions={result.emotions ?? []} selected={selected} onToggle={toggleEmotion} />
           <p className={styles.hint}>
             {(result.emotions ?? []).length > 0
               ? 'AI가 제안한 감정이에요. 꼭 맞지 않아도 괜찮아요.'
-              : '감정을 찾지 못했어요. "아직 모르겠어요"를 골라도 괜찮아요.'}
+              : '감정을 찾지 못했어요. "해당없음"을 골라도 괜찮아요.'}
           </p>
         </div>
 

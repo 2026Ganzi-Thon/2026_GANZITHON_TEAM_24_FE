@@ -86,6 +86,47 @@
   color: #8e9ab3;
 }
 
+/* 위기지원안내: 흰 배경, 보여 주기만 하는 화면 */
+.crisis {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 24px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+}
+
+.crisisTitle {
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.crisisCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 16px;
+  border: 1px solid #7da8e6;
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  user-select: none; /* 눌러도 아무 일도 없는 화면 */
+}
+
+.crisisNumber {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.crisisNotice {
+  font-size: var(--font-size-sm);
+  color: #333;
+}
+
 /* 진정하기 */
 .calm {
   flex: 1;
