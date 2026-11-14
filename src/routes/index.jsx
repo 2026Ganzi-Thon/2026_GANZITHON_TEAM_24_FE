@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import { useAuth } from '../features/auth/useAuth';
@@ -35,6 +35,16 @@ export default function AppRoutes() {
         <Route path="/" element={null} />
         {/* 각 파트 라우트를 여기에 추가 */}
       </Route>
+
+      {/* 풀스크린 흐름 화면 (하소연하기 등, 헤더·메뉴를 화면이 직접 구성)
+          로그인 가드만 적용된 빈 자리. 전용 레이아웃과 라우트는 B파트에서 채운다 */}
+      <Route
+        element={
+          <RequireAuth>
+            <Outlet />
+          </RequireAuth>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
