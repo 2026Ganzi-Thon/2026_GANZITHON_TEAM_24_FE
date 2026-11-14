@@ -18,7 +18,8 @@ export default function VentHeader({ title, step, onBack }) {
   };
 
   return (
-    <>
+    // 시안의 헤더는 단색 흰색이라 흰 바탕으로 감싼다 (TopBar 의 반투명 배경이 비치지 않게)
+    <div className={styles.header}>
       <TopBar
         title={title}
         left={onBack ? 'back' : null}
@@ -35,6 +36,6 @@ export default function VentHeader({ title, step, onBack }) {
         }
       />
       {step != null && <ProgressSteps current={step} />}
-    </>
+    </div>
   );
 }

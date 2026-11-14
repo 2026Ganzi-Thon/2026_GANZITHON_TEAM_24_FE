@@ -41,8 +41,8 @@
 }
 
 .user .bubble {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--vent-user-bubble, #5190e2);
+  background: var(--vent-user-bubble, #5190e2);
   color: #fff;
 }
 
