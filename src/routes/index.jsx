@@ -1,7 +1,9 @@
-import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import { useAuth } from '../features/auth/useAuth';
+import VentLayout from '../pages/vent/VentLayout';
+import { ventRoutes } from '../pages/vent/ventRoutes';
 
 // 로그인 가드 on/off. 로그인 기능이 완성되기 전까지는 false 로 두고 모든 화면에 바로 들어간다.
 const AUTH_GUARD_ENABLED = false;
@@ -36,15 +38,16 @@ export default function AppRoutes() {
         {/* 각 파트 라우트를 여기에 추가 */}
       </Route>
 
-      {/* 풀스크린 흐름 화면 (하소연하기 등, 헤더·메뉴를 화면이 직접 구성)
-          로그인 가드만 적용된 빈 자리. 전용 레이아웃과 라우트는 B파트에서 채운다 */}
+      {/* 풀스크린 흐름 화면 (하소연하기 등, 헤더·메뉴를 화면이 직접 구성) */}
       <Route
         element={
           <RequireAuth>
-            <Outlet />
+            <VentLayout />
           </RequireAuth>
         }
-      />
+      >
+        {ventRoutes}
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

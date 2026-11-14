@@ -11,4 +11,4 @@ logs
 .vscode/*
 !.vscode/extensions.json
 .idea
-docs/api.json
+docs/openapi.json
