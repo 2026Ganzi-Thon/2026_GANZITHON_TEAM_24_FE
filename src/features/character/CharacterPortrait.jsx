@@ -5,7 +5,7 @@ import './portrait.css';
 export const defaultCharacter = {
   name: '말랑이',
   color: 'PEACH',
-  eyes: 'HAPPY',
+  eyes: 'STYLE_1',
   nose: 'DEFAULT',
   mouth: 'DEFAULT',
   eyebrows: 'DEFAULT',

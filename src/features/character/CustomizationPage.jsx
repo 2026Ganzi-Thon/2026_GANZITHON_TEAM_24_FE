@@ -15,7 +15,8 @@ export default function CustomizationPage() {
   const [selectedId, setSelectedId] = useState(state?.selectedId ?? null);
   const selected = characters.find(({ id }) => id === selectedId);
   const [edits, setEdits] = useState({});
-  const character = { ...(selected ?? defaultCharacter), ...edits };
+  const character = { ...defaultCharacter, ...selected, ...edits };
+  if (character.eyes === 'HAPPY') character.eyes = defaultCharacter.eyes;
   const [tab, setTab] = useState('overview');
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState('');

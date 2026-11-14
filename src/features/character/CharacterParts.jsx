@@ -84,8 +84,8 @@ export function CharacterPart({ kind, style, winkSide, cap = '#aebdf0', band = '
   switch (kind) {
     case 'eyes':
       return <g>
-        <Eye x={79} style={winkSide ? (winkSide === 'left' ? 'STYLE_6' : 'HAPPY') : style} />
-        <Eye x={121} style={winkSide ? (winkSide === 'right' ? 'STYLE_6' : 'HAPPY') : style} right />
+        <Eye x={79} style={winkSide ? (winkSide === 'left' ? 'STYLE_6' : 'STYLE_1') : style} />
+        <Eye x={121} style={winkSide ? (winkSide === 'right' ? 'STYLE_6' : 'STYLE_1') : style} right />
       </g>;
     case 'eyebrows': {
       const path = browPaths[style] ?? 'M-6 1q6-6 12 0';
