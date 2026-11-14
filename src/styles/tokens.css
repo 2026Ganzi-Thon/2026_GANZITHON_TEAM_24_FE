@@ -6,8 +6,8 @@
   --color-text: #1f2330;
   --color-text-sub: #6b7084;
   --color-border: #e2e5ee;
-  /* primary: 디자인 시안의 파란 버튼 색 추정값. 디자인 확정 후 교체 */
-  --color-primary: #3d7bd9;
+  /* primary: Figma 버튼 파랑 (#397bd1). strong 은 hover 용으로 조금 어둡게 */
+  --color-primary: #397bd1;
   --color-primary-strong: #2f66bd;
   --color-on-primary: #ffffff;
   --color-danger: #e5484d;

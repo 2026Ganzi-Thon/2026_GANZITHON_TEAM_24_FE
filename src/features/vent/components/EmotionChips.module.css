@@ -1,0 +1,58 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 20px;
+  border: 1px solid #d5e0f4;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(40, 70, 120, 0.1);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.emotion {
+  background: #eef4ff;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.emotion.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.unsure {
+  background: #efefef;
+  border-color: #c9c9c9;
+  color: #555;
+}
+
+.unsure.active {
+  background: #6b7084;
+  border-color: #6b7084;
+  color: #fff;
+}

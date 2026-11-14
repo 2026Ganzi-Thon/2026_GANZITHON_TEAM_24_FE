@@ -1,0 +1,8 @@
+.header {
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.exit {
+  color: var(--vent-ink, #1c3d6e);
+}

@@ -1,0 +1,173 @@
+/* 하소연 · 감정 후보 · 진정 화면 공통 */
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 16px 8px;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 24px;
+}
+
+.pill {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid #d5e2f7;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pillPrimary {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.pillOutline {
+  color: var(--color-primary);
+}
+
+.error {
+  padding: 0 24px;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+/* 음성 듣는 중 */
+.listening {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 24px 4px;
+}
+
+.listeningBubble {
+  padding: 18px 48px;
+  border: 1px solid #d5e0f4;
+  border-radius: 20px;
+  background: #fff;
+  font-weight: 700;
+}
+
+.hint {
+  text-align: center;
+  font-size: 12px;
+  color: #8e9ab3;
+}
+
+/* 위기지원안내: 흰 배경, 보여 주기만 하는 화면 */
+.crisis {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 24px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+}
+
+.crisisTitle {
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.crisisCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 16px;
+  border: 1px solid #7da8e6;
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  user-select: none; /* 눌러도 아무 일도 없는 화면 */
+}
+
+.crisisNumber {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.crisisNotice {
+  font-size: var(--font-size-sm);
+  color: #333;
+}
+
+/* 진정하기 */
+.calm {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px calc(16px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.calmTitle {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  word-break: keep-all;
+}
+
+.calmDesc {
+  margin-top: 16px;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: #333;
+  word-break: keep-all;
+}
+
+.calmStage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calmActions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.calmActions .pill {
+  min-width: 120px;
+  min-height: 56px;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}

@@ -1,0 +1,18 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(232, 241, 255, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.message {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--vent-ink, #1c3d6e);
+  text-align: center;
+}
