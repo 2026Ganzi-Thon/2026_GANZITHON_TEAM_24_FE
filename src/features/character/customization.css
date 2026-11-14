@@ -1,0 +1,206 @@
+.room-shell:has(.room-custom) {
+  background: #fff;
+}
+
+.room-shell:has(.room-custom) > :is(.topbar, .app-background) {
+  display: none;
+}
+
+.room-custom__heading {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  padding: 0;
+  background: white;
+  text-align: center;
+}
+
+.room-custom__panel .room-custom__tiles {
+  min-width: 0;
+}
+
+.room-custom__heading h1 {
+  grid-column: 2;
+}
+
+.room-custom__heading a {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  font-size: 24px;
+}
+
+.room-custom__preview {
+  position: relative;
+  grid-template-rows: auto 1fr auto;
+  align-content: stretch;
+  gap: 6px;
+  min-height: clamp(285px, 84vw, 430px);
+  padding: clamp(16px, 6vw, 34px) 16px 12px;
+  background-position: center 52%;
+}
+
+.room-custom__preview > :is(img, .character-art) {
+  width: min(62%, 285px);
+  align-self: end;
+  aspect-ratio: 200 / 159;
+  object-fit: contain;
+}
+
+.room-custom__name {
+  border: 1px solid #a6c1e0;
+  color: #17304b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.room-custom__arrows {
+  position: absolute;
+  inset: 47% 10px auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-custom__arrows button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1f5080;
+  font-size: 38px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.room-custom__arrows button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.room-custom__preview-actions {
+  display: flex;
+  justify-self: end;
+  gap: 8px;
+}
+
+.room-custom__preview-actions .btn {
+  min-height: 34px;
+  padding-inline: 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.room-custom__panel {
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 0 20px;
+  border: 0;
+  background: white;
+}
+
+.room-custom__toolbar {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px;
+  background: #e6f0fc;
+}
+
+.room-custom__toolbar button,
+.room-custom__tiles button {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  color: #17304b;
+  cursor: pointer;
+}
+
+.room-custom__toolbar button {
+  flex: 1 0 48px;
+  min-height: 52px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 10px;
+}
+
+.room-custom__toolbar button[aria-pressed='true'] {
+  background: #fff;
+}
+
+.room-custom__toolbar button span,
+.room-custom__tile-icon {
+  width: 25px;
+  height: 18px;
+  background-repeat: no-repeat;
+  background-size: 1000% 100%;
+}
+
+.room-custom__panel .room-form {
+  padding: clamp(16px, 4vw, 28px);
+}
+
+.room-custom__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 14px);
+}
+
+.room-custom__tiles button {
+  min-width: 0;
+  min-height: 88px;
+  padding: 8px 4px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: #e6f0fc;
+  font-size: 12px;
+  word-break: keep-all;
+}
+
+.room-custom__tiles button[aria-pressed='true'] {
+  border-color: var(--color-primary);
+}
+
+.room-custom__tiles :is(img, svg) {
+  width: 62px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.room-custom__rename {
+  width: min(100%, 320px);
+  margin: 8px auto;
+}
+
+.room-custom__rename .field__label {
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.room-custom__rename .field__input {
+  min-width: 0;
+  border-color: #7ea5cf;
+  border-radius: 999px;
+  background: #e6f0fc;
+}
+
+.room-custom__rename small {
+  display: block;
+  margin: 4px 8px;
+  text-align: right;
+  color: var(--color-text-sub);
+}
+
+.room-custom__save {
+  justify-self: center;
+  min-width: min(100%, 180px);
+  border-radius: 16px;
+}
+
+@media (min-width: 768px) {
+  .room-custom__preview { min-height: clamp(370px, 58svh, 570px); }
+  .room-custom__panel { align-self: start; box-shadow: 0 6px 24px #17304b19; }
+}

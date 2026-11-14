@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import NavMenu from './NavMenu';
 
-export default function Drawer({ open, onClose }) {
+export default function Drawer({ open, onClose, children }) {
   // ESC 로 닫기
   useEffect(() => {
     if (!open) return undefined;
@@ -24,6 +24,7 @@ export default function Drawer({ open, onClose }) {
             ✕
           </button>
         </div>
+        {children}
         <NavMenu onNavigate={onClose} />
       </aside>
     </>

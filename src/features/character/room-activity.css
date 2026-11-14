@@ -1,0 +1,237 @@
+.room-shell:has(.room-activity) {
+  background: #fff;
+}
+
+.room-shell:has(.room-activity) > :is(.topbar, .app-background) {
+  display: none;
+}
+
+.room-shell:has(.room-activity) > .app-content {
+  max-width: none;
+  padding: 0;
+}
+
+.room-activity {
+  --activity-header: calc(64px + env(safe-area-inset-top));
+  width: min(100%, 480px);
+  margin-inline: auto;
+}
+
+.room-activity__header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  min-height: var(--activity-header);
+  align-items: center;
+  padding: env(safe-area-inset-top) 12px 0;
+  text-align: center;
+}
+
+.room-activity__header h1 {
+  grid-column: 2;
+  font-size: clamp(20px, 4.5vw, 26px);
+}
+
+.room-activity__header a {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-primary-strong);
+  font-size: 24px;
+}
+
+.room-activity__scene {
+  display: grid;
+  grid-template-rows: minmax(70px, auto) auto 44px;
+  align-content: start;
+  justify-items: center;
+  gap: clamp(12px, 2.5svh, 28px);
+  min-height: calc(100svh - var(--activity-header));
+  padding: clamp(36px, 16vw, 80px) 16px max(24px, env(safe-area-inset-bottom));
+  background-color: #f3d9bf;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+}
+
+.room-activity__bubble {
+  position: relative;
+  max-width: min(100%, 310px);
+  align-self: center;
+  padding: 14px 21px;
+  border: 1px solid #fff;
+  border-radius: 24px;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 4px 16px rgb(40 54 90 / 12%);
+  text-align: center;
+  line-height: 1.55;
+  font-weight: 600;
+  word-break: keep-all;
+}
+
+@media (width < 768px) {
+  .room-activity {
+    container-type: inline-size;
+  }
+
+  .room-activity__scene {
+    grid-template-rows: auto auto;
+    padding-top: 0;
+  }
+
+  .room-activity__stage {
+    display: flex;
+    width: 100%;
+    /* The mobile backdrop scales by width, with the default rug centered at 102%. */
+    min-height: 102cqw;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(12px, 2.5svh, 28px);
+    padding-top: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .room-activity__stage {
+    display: contents;
+  }
+}
+
+.room-activity__toy {
+  position: relative;
+  width: min(63%, 275px);
+  align-self: center;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.room-activity__toy[data-dragging='true'] {
+  cursor: grabbing;
+}
+
+.room-activity__squish {
+  position: relative;
+  display: block;
+  transform: scale(var(--squish-x, 1), var(--squish-y, 1));
+  transform-origin: center bottom;
+  transition: transform 300ms cubic-bezier(.23, 1.5, .44, 1);
+}
+
+.room-activity__toy[data-dragging='true'] .room-activity__squish {
+  transition: none;
+}
+
+.room-activity__cheek {
+  position: absolute;
+  top: 51%;
+  width: 23%;
+  height: 24%;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.room-activity__cheek--left { left: 19%; }
+.room-activity__cheek--right { right: 19%; }
+
+.room-activity__squish .character-art {
+  overflow: visible;
+}
+
+.character-art__poke-finger,
+.character-art__poke-marks {
+  pointer-events: none;
+}
+
+.character-art__poke-finger {
+  animation: room-activity-finger 620ms ease-in-out both;
+}
+
+.character-art__pressed-cheek {
+  animation: room-activity-press 620ms ease-in-out both;
+}
+
+.character-art__poke-marks {
+  animation: room-activity-marks 620ms ease-out both;
+}
+
+@keyframes room-activity-finger {
+  0%, 100% { opacity: 0; transform: translateX(-24px); }
+  23%, 60% { opacity: 1; transform: translateX(4px); }
+}
+
+@keyframes room-activity-press {
+  0%, 100% { transform: none; }
+  23%, 60% { transform: translateX(var(--cheek-offset)); }
+}
+
+@keyframes room-activity-marks {
+  0%, 100% { opacity: 0; }
+  26%, 52% { opacity: 1; }
+}
+
+.room-activity__toy--praise {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.room-activity__sparkle {
+  position: absolute;
+  top: 14%;
+  right: 3%;
+  color: #a76b13;
+  font-size: 28px;
+}
+
+.room-activity__next {
+  min-height: 44px;
+  padding-inline: 18px;
+  border: 1px solid #d6e3fa;
+  border-radius: 22px;
+  background: #fff;
+  color: var(--color-primary-strong);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.room-activity__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .room-activity {
+    width: 100%;
+  }
+
+  .room-activity__header {
+    padding-inline: max(24px, 4vw);
+  }
+
+  .room-activity__scene {
+    align-content: center;
+    padding-block: 28px;
+    background-position: center 54%;
+    background-size: cover;
+  }
+
+  .room-activity__toy {
+    width: clamp(250px, 44svh, 400px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-activity__squish { transition: none; }
+  .character-art__poke-finger,
+  .character-art__pressed-cheek,
+  .character-art__poke-marks { animation: none; }
+}
