@@ -1,4 +1,4 @@
-import CharacterStage from './CharacterStage';
+import CharacterAvatar from './CharacterAvatar';
 import styles from './ChatBubble.module.css';
 
 // "오후 7:24" 모양
@@ -26,7 +26,7 @@ export default function ChatBubble({
   return (
     <div className={`${styles.row} ${isUser ? styles.user : styles.assistant}`}>
       {!isUser &&
-        (showAvatar ? <CharacterStage size="sm" /> : <span className={styles.avatarGap} aria-hidden="true" />)}
+        (showAvatar ? <CharacterAvatar /> : <span className={styles.avatarGap} aria-hidden="true" />)}
       <div className={styles.col}>
         <div className={styles.line}>
           {isUser && timePosition === 'side' && timeLabel}

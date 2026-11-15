@@ -36,6 +36,16 @@ export function VentFeedbackMotion({ character, mood, className = '' }) {
   );
 }
 
+// 완료 화면의 기분 카드처럼 작게 쓰는 정적인 표정 (모션 없음). mood: 'relieved' | 'uneasy'
+export function VentMoodFace({ character, mood, className = '' }) {
+  const reaction = feedback[mood];
+  return (
+    <span className={`vent-mood-face ${className}`} aria-hidden="true">
+      <CharacterPortrait character={character} expression={reaction?.expression ?? smiling} />
+    </span>
+  );
+}
+
 function TearMask({ id }) {
   return (
     <svg className="vent-disposal__defs" width="0" height="0" aria-hidden="true">

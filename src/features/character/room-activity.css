@@ -36,8 +36,6 @@
   min-height: 44px;
   place-items: center;
   border-radius: 50%;
-  color: var(--color-primary-strong);
-  font-size: 24px;
 }
 
 .room-activity__scene {

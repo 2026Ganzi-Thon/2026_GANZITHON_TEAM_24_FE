@@ -1,5 +1,7 @@
+import micIcon from '../../../assets/icons/mic.svg';
+import sendPlane from '../../../assets/icons/send-plane.svg';
 import { CHAT_MAX_LENGTH } from '../constants';
-import { MicWaveIcon, SendIcon, StopIcon } from './icons';
+import { StopIcon } from './icons';
 import styles from './ChatInput.module.css';
 
 // 하단 입력줄: 마이크 + 입력 + 전송
@@ -38,7 +40,7 @@ export default function ChatInput({
             disabled={disabled}
             aria-label="음성으로 말하기"
           >
-            <MicWaveIcon />
+            <img src={micIcon} alt="" width="40" height="40" draggable="false" />
           </button>
         )}
         <input
@@ -53,7 +55,7 @@ export default function ChatInput({
           autoComplete="off"
         />
         {listening ? (
-          <button type="button" className={styles.send} onClick={onStop} aria-label="듣기 멈추기">
+          <button type="button" className={`${styles.send} ${styles.stop}`} onClick={onStop} aria-label="듣기 멈추기">
             <StopIcon />
           </button>
         ) : (
@@ -63,7 +65,7 @@ export default function ChatInput({
             disabled={blocked || !value.trim()}
             aria-label="보내기"
           >
-            <SendIcon />
+            <img className={styles.plane} src={sendPlane} alt="" draggable="false" />
           </button>
         )}
       </div>

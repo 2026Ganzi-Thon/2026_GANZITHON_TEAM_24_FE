@@ -1,10 +1,13 @@
 import { useRef, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { NICKNAME } from '../../features/vent/constants';
+import { useNavigate } from 'react-router-dom';
+import RestartRedirect from '../../features/vent/RestartRedirect';
 import { discardSession } from '../../features/vent/discardSession';
+import { topic } from '../../features/vent/korean';
+import { useNickname } from '../../features/vent/profile';
 import { VentDisposalMotion } from '../../features/vent/motions';
 import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
+import { useGoBack } from '../../features/vent/useGoBack';
 import { useSelectedCharacter } from '../../features/vent/useSelectedCharacter';
 import DiscardMethods from '../../features/vent/components/DiscardMethods';
 import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
@@ -16,12 +19,14 @@ import styles from './Vent.module.css';
 // 모션 컴포넌트가 "사라질 화면 전체(배경 포함)"를 감싸므로 배경(VentBackdrop)도 이 안에서 그린다.
 export default function DiscardPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack(VENT_PATHS.result);
   const result = useVentStore((s) => s.result);
   const character = useSelectedCharacter();
+  const nickname = useNickname();
   const [method, setMethod] = useState(null); // null(대기) | 'tear' | 'burn' | 'evaporate'
   const leavingRef = useRef(false); // 비우는 중에는 아래 "결과 없음" 가드가 끼어들지 않게
 
-  if (!result && !leavingRef.current) return <Navigate to={VENT_PATHS.chat} replace />;
+  if (!result && !leavingRef.current) return <RestartRedirect />;
 
   // 모션이 끝난 뒤에 비운다 (재생 중에는 화면 내용이 그대로 보여야 하므로)
   const handleComplete = (usedMethod) => {
@@ -44,10 +49,10 @@ export default function DiscardPage() {
     >
       <div className={styles.discardScreen}>
         <VentBackdrop />
-        <VentHeader title="버리기" step={STEP_NO.discard} onBack={() => navigate(VENT_PATHS.result)} />
+        <VentHeader title="버리기" step={STEP_NO.discard} onBack={goBack} />
         <main className={styles.calm}>
           <h2 className={styles.calmTitle}>자 이제 이 쓰레기 같은 감정을 버려보자</h2>
-          <p className={styles.calmDesc}>{`${NICKNAME}는 어떻게 해소하고 싶어? 방법을 선택해 봐.`}</p>
+          <p className={styles.calmDesc}>{`${topic(nickname)} 어떻게 해소하고 싶어? 방법을 선택해 봐.`}</p>
 
           {/* 큰 캐릭터는 모션 컴포넌트가 이 화면 가운데에 그린다. 여기는 자리만 비워 둔다 */}
           <div className={styles.calmStage} />

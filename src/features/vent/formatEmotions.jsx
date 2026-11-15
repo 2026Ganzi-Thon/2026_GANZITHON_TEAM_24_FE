@@ -1,11 +1,6 @@
 import { Fragment } from 'react';
 import { UNSURE_LABEL } from './constants';
-
-// 한글 마지막 글자에 받침이 있는지 (한글이 아니면 받침 없음으로 본다)
-function hasBatchim(word) {
-  const code = word.charCodeAt(word.length - 1) - 0xac00;
-  return code >= 0 && code <= 11171 && code % 28 !== 0;
-}
+import { hasBatchim } from './korean';
 
 // 고른 감정을 "'분노'이야", "'화남'과 '불안'이야", "'분노', '답답함'과 '억울함'이야" 처럼 보여 준다.
 // 감정 단어(따옴표 포함)는 highlightClassName 으로 감싸 색을 바꿀 수 있다.

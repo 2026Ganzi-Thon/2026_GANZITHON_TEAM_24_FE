@@ -1,6 +1,8 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import RestartRedirect from '../../features/vent/RestartRedirect';
 import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
+import { useGoBack } from '../../features/vent/useGoBack';
 import { useDraftEdit } from '../../features/vent/useDraftEdit';
 import ChatBubble from '../../features/vent/components/ChatBubble';
 import DraftBubble from '../../features/vent/components/DraftBubble';
@@ -14,6 +16,7 @@ import styles from './Vent.module.css';
 // 시안에는 버튼이 없지만 3인칭 화면과 같은 버튼을 둔다 (사용자 결정)
 export default function PlanPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack(VENT_PATHS.situation);
   const result = useVentStore((s) => s.result);
   const draft = useDraftEdit(
     'plan',
@@ -21,7 +24,7 @@ export default function PlanPage() {
     (v) => ({ plan: { if: v.if, then: v.then } }),
   );
 
-  if (!result) return <Navigate to={VENT_PATHS.chat} replace />;
+  if (!result) return <RestartRedirect />;
 
   const shown = draft.editing ? draft.values : draft.saved;
 
@@ -30,7 +33,7 @@ export default function PlanPage() {
       <VentHeader
         title="만약 - 그러면 계획"
         step={STEP_NO.plan}
-        onBack={() => navigate(VENT_PATHS.situation)}
+        onBack={goBack}
       />
       <main className={styles.body}>
         <div className={styles.scroll}>

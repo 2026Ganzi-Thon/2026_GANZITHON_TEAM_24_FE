@@ -1,7 +1,9 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import RestartRedirect from '../../features/vent/RestartRedirect';
 import { formatEmotions } from '../../features/vent/formatEmotions';
 import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
+import { useGoBack } from '../../features/vent/useGoBack';
 import ChatBubble from '../../features/vent/components/ChatBubble';
 import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
 import VentHeader from '../../features/vent/components/VentHeader';
@@ -10,10 +12,11 @@ import styles from './Vent.module.css';
 // 7단계: 결과 확인. 지금까지 고른 감정과 (고친) 초안을 카드로 모아 보여 준다.
 export default function ResultPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack(VENT_PATHS.plan);
   const result = useVentStore((s) => s.result);
   const selected = useVentStore((s) => s.selectedEmotions);
 
-  if (!result) return <Navigate to={VENT_PATHS.chat} replace />;
+  if (!result) return <RestartRedirect />;
 
   // 비어 있는 칸(AI 실패 후 적지 않음)은 회색 안내로
   const text = (value) =>
@@ -21,7 +24,7 @@ export default function ResultPage() {
 
   return (
     <>
-      <VentHeader title="결과" step={STEP_NO.result} onBack={() => navigate(VENT_PATHS.plan)} />
+      <VentHeader title="결과" step={STEP_NO.result} onBack={goBack} />
       <main className={styles.body}>
         <div className={`${styles.scroll} ${styles.resultScroll}`}>
           <ChatBubble>지금까지 내용을 정리해 봤어!</ChatBubble>

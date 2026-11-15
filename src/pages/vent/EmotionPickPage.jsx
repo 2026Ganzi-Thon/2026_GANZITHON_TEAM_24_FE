@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { NICKNAME } from '../../features/vent/constants';
+import { useNavigate } from 'react-router-dom';
+import RestartRedirect from '../../features/vent/RestartRedirect';
+import { useNickname } from '../../features/vent/profile';
 import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
+import { useGoBack } from '../../features/vent/useGoBack';
 import ChatBubble from '../../features/vent/components/ChatBubble';
 import ChatInput from '../../features/vent/components/ChatInput';
 import EmotionChips from '../../features/vent/components/EmotionChips';
@@ -13,15 +15,16 @@ import styles from './Vent.module.css';
 // 2단계: 감정 후보 정하기 (서버가 준 후보 중 최대 3개, 또는 "해당없음" 하나)
 export default function EmotionPickPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack(VENT_PATHS.chat);
+  const nickname = useNickname();
   const result = useVentStore((s) => s.result);
   const selected = useVentStore((s) => s.selectedEmotions);
   const toggleEmotion = useVentStore((s) => s.toggleEmotion);
   const clearTexts = useVentStore((s) => s.clearTexts);
   const [now] = useState(() => Date.now());
 
-  // 새로고침 등으로 저장된 결과가 없으면 처음부터
-  // TODO: 가이드는 홈 + "정리 내용은 저장되지 않아 처음부터 시작해요" 안내. 홈이 만들어지면 바꾼다
-  if (!result) return <Navigate to={VENT_PATHS.chat} replace />;
+  // 새로고침 등으로 저장된 결과가 없으면 홈으로 (안내 문구와 함께)
+  if (!result) return <RestartRedirect />;
 
   const handleConfirm = () => {
     clearTexts(); // 후보 다시 보기에 쓰던 원문은 여기서 지운다
@@ -33,12 +36,12 @@ export default function EmotionPickPage() {
       <VentHeader
         title="감정 후보 정하기"
         step={STEP_NO.emotions}
-        onBack={() => navigate(VENT_PATHS.chat)}
+        onBack={goBack}
       />
       <main className={styles.body}>
         <div className={styles.scroll}>
           <ChatBubble time={now} timePosition="below">
-            {`${NICKNAME}의 이야기를 들어보니 이런 마음이 느껴졌어. 지금 ${NICKNAME}의 마음과 가장 가까운 감정을 골라볼래? 딱 하나가 아니어도 괜찮아!`}
+            {`${nickname}의 이야기를 들어보니 이런 마음이 느껴졌어. 지금 ${nickname}의 마음과 가장 가까운 감정을 골라볼래? 딱 하나가 아니어도 괜찮아!`}
           </ChatBubble>
           <EmotionChips emotions={result.emotions ?? []} selected={selected} onToggle={toggleEmotion} />
           <p className={styles.hint}>

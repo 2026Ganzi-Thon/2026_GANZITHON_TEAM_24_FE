@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../../../components/navigation/TopBar';
+import { HOME_PATH } from '../steps';
 import { useVentStore } from '../store';
 import { ExitIcon } from './icons';
 import ProgressSteps from './ProgressSteps';
@@ -14,7 +15,7 @@ export default function VentHeader({ title, step, onBack }) {
   // 나가면 쓰던 내용을 모두 비우고 홈으로
   const handleExit = () => {
     reset();
-    navigate('/');
+    navigate(HOME_PATH);
   };
 
   return (
@@ -27,7 +28,7 @@ export default function VentHeader({ title, step, onBack }) {
         right={
           <button
             type="button"
-            className={`icon-button ${styles.exit}`}
+            className="icon-button"
             onClick={handleExit}
             aria-label="나가기"
           >

@@ -1,4 +1,5 @@
-// 하소연 흐름에서 쓰는 아이콘. TODO: 최종 아이콘은 Figma에서 내려받아 교체
+// 하소연 흐름에서 쓰는 아이콘.
+// 나가기·마이크·전송은 Figma 에셋(src/assets/icons)을 쓰고, Figma에 없는 '듣기 멈추기'(■)만 여기서 그린다.
 const base = {
   width: 24,
   height: 24,
@@ -11,36 +12,13 @@ const base = {
   'aria-hidden': true,
 };
 
-export function ExitIcon(props) {
-  return (
-    <svg {...base} {...props}>
-      <path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4" />
-      <path d="M16 8l4 4-4 4" />
-      <path d="M20 12H9" />
-    </svg>
-  );
-}
-
-export function MicWaveIcon(props) {
-  return (
-    <svg {...base} strokeWidth={2} {...props}>
-      <path d="M3 10v4M7.5 7v10M12 4v16M16.5 8v8M21 11v2" />
-    </svg>
-  );
-}
+// 나가기 아이콘은 A파트 화면(커스터마이징·놀이터·칭찬)과 같이 쓰므로 공통 위치에 있다
+export { default as ExitIcon } from '../../../components/icons/ExitIcon';
 
 export function StopIcon(props) {
   return (
     <svg {...base} {...props}>
       <rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-export function SendIcon(props) {
-  return (
-    <svg {...base} fill="currentColor" strokeWidth={1.5} {...props}>
-      <path d="M21 3 3 10.5l7 2.5 2.5 7L21 3z" />
     </svg>
   );
 }

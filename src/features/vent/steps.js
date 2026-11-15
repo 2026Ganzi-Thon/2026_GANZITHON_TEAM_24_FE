@@ -28,5 +28,8 @@ export const STEP_NO = {
   done: 9,
 };
 
+// 홈 화면. ('/' 는 시작 화면(Splash)이라 로그인으로 넘어가 버리므로 나가기는 항상 여기로 간다)
+export const HOME_PATH = '/home';
+
 export const CRISIS_PATH = '/vent/crisis'; // 위기지원안내 (/vent 응답이 risk: DANGER 일 때)
 export const AFTER_CALM_PATH = VENT_PATHS.reaction; // 진정 다음 화면

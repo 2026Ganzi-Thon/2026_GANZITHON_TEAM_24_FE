@@ -72,6 +72,11 @@
   padding: 8px 24px 4px;
 }
 
+/* 음성 듣는 중 큰 캐릭터 (A파트 포트레이트) */
+.listeningCharacter {
+  width: min(220px, 60vw);
+}
+
 .listeningBubble {
   padding: 18px 48px;
   border: 1px solid #d5e0f4;
@@ -179,9 +184,9 @@
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
-/* 2단계 초안 말풍선 아래 안내문 (아바타 48px + 간격 8px 만큼 들여서 말풍선과 맞춤) */
+/* 2단계 초안 말풍선 아래 안내문 (아바타 73px + 간격 8px + 시안의 6px 만큼 들여서 말풍선과 맞춤) */
 .draftNote {
-  padding-left: 62px;
+  padding-left: 87px;
   font-size: 11px;
   line-height: 1.5;
   color: rgba(82, 82, 82, 0.6);
@@ -212,6 +217,12 @@
   box-shadow: 0 0 4px rgba(57, 123, 209, 0.2);
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* 카드 안 캐릭터 얼굴: 카드(96×87) 안에 여백을 두고 들어가게 */
+.moodFace {
+  display: block;
+  width: 72px;
 }
 
 .moodCard:focus-visible {

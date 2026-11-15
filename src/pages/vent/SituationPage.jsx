@@ -1,6 +1,8 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import RestartRedirect from '../../features/vent/RestartRedirect';
 import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
+import { useGoBack } from '../../features/vent/useGoBack';
 import { useDraftEdit } from '../../features/vent/useDraftEdit';
 import ChatBubble from '../../features/vent/components/ChatBubble';
 import DraftBubble from '../../features/vent/components/DraftBubble';
@@ -13,6 +15,7 @@ import styles from './Vent.module.css';
 // 5단계: 3인칭 돌아보기 (situation 을 말풍선 안에서 고칠 수 있음)
 export default function SituationPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack(VENT_PATHS.reaction);
   const result = useVentStore((s) => s.result);
   const draft = useDraftEdit(
     'situation',
@@ -20,7 +23,7 @@ export default function SituationPage() {
     (v) => ({ situation: v.situation }),
   );
 
-  if (!result) return <Navigate to={VENT_PATHS.chat} replace />;
+  if (!result) return <RestartRedirect />;
 
   const shown = draft.editing ? draft.values : draft.saved;
 
@@ -29,7 +32,7 @@ export default function SituationPage() {
       <VentHeader
         title="3인칭 돌아보기"
         step={STEP_NO.situation}
-        onBack={() => navigate(VENT_PATHS.reaction)}
+        onBack={goBack}
       />
       <main className={styles.body}>
         <div className={styles.scroll}>

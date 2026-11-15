@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useOutletContext } from 'react-router-dom';
+import ExitIcon from '../../components/icons/ExitIcon';
 import CharacterPortrait, { defaultCharacter } from './CharacterPortrait';
 import { getBackground } from './backgrounds';
 import { useCharacterStore } from './store';
@@ -99,7 +100,7 @@ export default function RoomActivityPage({ mode = 'play' }) {
     <section className="room-activity" aria-labelledby="room-activity-title">
       <header className="room-activity__header">
         <h1 id="room-activity-title">{praise ? '칭찬해 줘!' : '스트레스 해소'}</h1>
-        <Link to="/home" aria-label="홈으로 돌아가기" title="홈으로">↪</Link>
+        <Link to="/home" aria-label="홈으로 돌아가기" title="홈으로"><ExitIcon /></Link>
       </header>
       <div className="room-activity__scene" style={{ backgroundImage: `url(${getBackground(backgroundId).image})` }}>
         <div className="room-activity__stage">

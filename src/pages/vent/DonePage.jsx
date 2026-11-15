@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { VentFeedbackMotion } from '../../features/vent/motions';
-import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
+import { VentFeedbackMotion, VentMoodFace } from '../../features/vent/motions';
+import { HOME_PATH, STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useSelectedCharacter } from '../../features/vent/useSelectedCharacter';
-import CharacterStage from '../../features/vent/components/CharacterStage';
 import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
 import VentHeader from '../../features/vent/components/VentHeader';
 import styles from './Vent.module.css';
@@ -23,7 +22,7 @@ export default function DonePage() {
 
   return (
     <>
-      <VentHeader title="완료" step={STEP_NO.done} onBack={() => navigate('/')} />
+      <VentHeader title="완료" step={STEP_NO.done} onBack={() => navigate(HOME_PATH)} />
       <main className={styles.calm}>
         <h2 className={styles.calmTitle}>아 후련하다!!!</h2>
         <p className={styles.calmDesc}>기분이 어때? 조금은 나아졌어?</p>
@@ -32,7 +31,6 @@ export default function DonePage() {
           <VentFeedbackMotion character={character} mood={mood} />
         </div>
 
-        {/* TODO(A파트 연결): 카드 안 작은 캐릭터를 A파트 포트레이트(안도·불편 표정)로 교체 */}
         <div className={`${styles.stageActions} ${styles.moodCards}`}>
           <button
             type="button"
@@ -41,7 +39,7 @@ export default function DonePage() {
             aria-label="마음이 편안해졌어요"
             onClick={() => pickMood('relieved')}
           >
-            <CharacterStage size="sm" />
+            <VentMoodFace character={character} mood="relieved" className={styles.moodFace} />
           </button>
           <button
             type="button"
@@ -50,7 +48,7 @@ export default function DonePage() {
             aria-label="아직 마음이 불편해요"
             onClick={() => pickMood('uneasy')}
           >
-            <CharacterStage size="sm" />
+            <VentMoodFace character={character} mood="uneasy" className={styles.moodFace} />
           </button>
         </div>
         <PrivacyNotice />

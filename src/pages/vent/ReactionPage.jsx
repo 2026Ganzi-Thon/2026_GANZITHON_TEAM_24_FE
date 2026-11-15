@@ -1,6 +1,8 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import RestartRedirect from '../../features/vent/RestartRedirect';
 import { STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
+import { useGoBack } from '../../features/vent/useGoBack';
 import { useDraftEdit } from '../../features/vent/useDraftEdit';
 import ChatBubble from '../../features/vent/components/ChatBubble';
 import DraftBubble from '../../features/vent/components/DraftBubble';
@@ -14,6 +16,7 @@ import styles from './Vent.module.css';
 // (노션 명세는 needs 를 '읽기용'으로 적었지만, 고친 값은 서버로 보내지 않는 프론트 값이라 전체 수정이 가능하게 했다)
 export default function ReactionPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack(VENT_PATHS.calm);
   const result = useVentStore((s) => s.result);
   const draft = useDraftEdit(
     'reaction',
@@ -29,13 +32,13 @@ export default function ReactionPage() {
   );
 
   // 새로고침 등으로 저장된 결과가 없으면 처음부터
-  if (!result) return <Navigate to={VENT_PATHS.chat} replace />;
+  if (!result) return <RestartRedirect />;
 
   const shown = draft.editing ? draft.values : draft.saved;
 
   return (
     <>
-      <VentHeader title="원했던 반응" step={STEP_NO.reaction} onBack={() => navigate(VENT_PATHS.calm)} />
+      <VentHeader title="원했던 반응" step={STEP_NO.reaction} onBack={goBack} />
       <main className={styles.body}>
         <div className={styles.scroll}>
           <ChatBubble>{'내가 직접 정리를 해봤어!!\n틀린 부분이 있다면 직접 수정해도 괜찮아~'}</ChatBubble>

@@ -11,26 +11,44 @@
   gap: 10px;
 }
 
+/* 눌리는 영역은 44px, 모양은 Figma 에셋(40px 원) */
 .mic,
 .send {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   width: 44px;
   height: 44px;
+  padding: 0;
   border: 0;
-  border-radius: 50%;
+  background: transparent;
   cursor: pointer;
 }
 
-.mic {
-  background: #e3eefc;
-  color: var(--color-primary);
+.mic img {
+  display: block;
+  width: 40px;
+  height: 40px;
 }
 
+/* 파란 원은 Figma 에셋, 종이비행기는 Figma 와 같은 각도(-47.5°)와 위치로 얹는다 */
 .send {
-  background: var(--color-primary);
+  background: url('../../../assets/icons/send-circle.svg') center / 40px 40px no-repeat;
+}
+
+.plane {
+  position: absolute;
+  top: calc(50% - 0.7px);
+  left: calc(50% + 1.4px);
+  width: 15.64px;
+  height: 13.8px;
+  transform: translate(-50%, -50%) rotate(-47.5deg);
+}
+
+/* 듣기 멈추기(■): 같은 파란 원 위에 흰 사각형 */
+.stop {
   color: #fff;
 }
 

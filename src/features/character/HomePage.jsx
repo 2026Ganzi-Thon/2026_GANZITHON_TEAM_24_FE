@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import CharacterPortrait, { defaultCharacter } from './CharacterPortrait';
 import { getBackground } from './backgrounds';
 import { useCharacterStore } from './store';
 
 const prompts = [
   { label: '나랑 같이 놀래?', path: '/play' },
-  { label: '혹시 힘든 일 있어?' },
+  { label: '혹시 힘든 일 있어?', path: '/vent' },
   { label: '오늘의 칭찬, 들어볼래?', path: '/compliments' },
 ];
 
@@ -14,7 +14,17 @@ export default function HomePage() {
   const { characters, error, reload, token, loaded } = useOutletContext();
   const [selectedId, setSelectedId] = useState(null);
   const [prompt, setPrompt] = useState(false);
-  const [notice, setNotice] = useState('');
+  // 다른 화면이 넘겨 준 안내(예: 하소연 도중 새로고침)를 한 번 보여 준다
+  const { state, pathname } = useLocation();
+  const navigate = useNavigate();
+  const [notice, setNotice] = useState(state?.notice ?? '');
+
+  // 안내를 읽었으면 기록에서 지워서, 홈을 새로고침해도 같은 안내가 다시 뜨지 않게 한다
+  useEffect(() => {
+    if (state?.notice) navigate(pathname, { replace: true, state: null });
+    // 처음 들어올 때 한 번만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const backgroundId = useCharacterStore((state) => state.backgroundId);
   const active = characters.find(({ id }) => id === selectedId) ?? characters[0] ?? defaultCharacter;
   const slots = characters.length ? characters : [defaultCharacter];
@@ -27,7 +37,7 @@ export default function HomePage() {
         <div className="room-home__prompts">
           {prompt ? prompts.map(({ label, path }) => path ? (
             <Link key={label} className="room-bubble" to={path}
-              state={{ characterId: active.id ?? null }}>{label}</Link>
+              state={{ characterId: active.id ?? null, character: active }}>{label}</Link>
           ) : (
             <button key={label} className="room-bubble" type="button"
               onClick={() => setNotice('이 기능은 준비 중이에요.')}>{label}</button>

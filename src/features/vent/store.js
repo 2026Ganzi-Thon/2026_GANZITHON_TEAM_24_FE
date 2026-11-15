@@ -66,6 +66,24 @@ export const useVentStore = create((set) => ({
       return { selectedEmotions: [...others, label] };
     }),
 
+  // 감정 후보 화면에서 ← 로 채팅창에 돌아왔을 때: 보관해 둔 내 글(texts)을 대화로 되살린다.
+  // (캐릭터의 답은 정리 결과를 받을 때 지우는 것이 명세라 되살리지 않는다.)
+  // 마지막 글에 resumed 표시를 달아 바로 "다 털어놓은 것 같아" / "더 이야기" 선택지를 보여 줄 수 있게 한다.
+  restoreMessages: () =>
+    set((s) => {
+      if (s.messages.length > 0 || s.texts.length === 0) return {};
+      const now = Date.now();
+      const messages = s.texts.map((content, i) => ({
+        id: nextMessageId++,
+        role: 'user',
+        content,
+        at: now,
+        local: false,
+        resumed: i === s.texts.length - 1,
+      }));
+      return { messages, texts: [] }; // texts 는 다시 정리할 때 messages 에서 새로 만든다
+    }),
+
   clearTexts: () => set({ texts: [] }),
 
   reset: () => set(initialState),

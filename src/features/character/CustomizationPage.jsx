@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useOutletContext } from 'react-router-dom';
+import ExitIcon from '../../components/icons/ExitIcon';
 import { Button, Input, Modal } from '../../components/ui';
 import CharacterPortrait, { defaultCharacter } from './CharacterPortrait';
 import { CharacterPartPreview } from './CharacterParts';
@@ -117,7 +118,7 @@ export default function CustomizationPage() {
 
   return (
     <section className="room-custom">
-      <header className="room-custom__heading"><h1>커스터마이징</h1><Link to="/home" aria-label="홈으로" title="홈으로">↪</Link></header>
+      <header className="room-custom__heading"><h1>커스터마이징</h1><Link to="/home" aria-label="홈으로" title="홈으로"><ExitIcon /></Link></header>
       <div className="room-custom__preview" style={{ backgroundImage: 'url(' + getBackground(backgroundId).image + ')' }}>
         <button type="button" className="room-custom__name" onClick={() => setTab('name')}>
           {character.name || '말랑이'}
