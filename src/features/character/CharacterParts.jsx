@@ -2,6 +2,7 @@ const ink = '#543932';
 const GLASSES_STYLE = 'STYLE_6';
 
 const browPaths = {
+  tense: 'M-7-2l13 5',
   STYLE_2: 'M-6 0h12',
   STYLE_3: 'M-6 1q6-5 12-1',
   STYLE_4: 'M-6-2Q0 3 6-2',
@@ -29,6 +30,10 @@ export function CharacterPartPreview({ kind, style }) {
 }
 
 function Eye({ x, style, right }) {
+  if (style === 'resting') {
+    return <path d={`M${x - 7} 83q7 8 14 0`} stroke={ink} strokeWidth="2.7" strokeLinecap="round" fill="none" />;
+  }
+
   if (style === 'STYLE_6' || (style === 'STYLE_4' && right)) {
     return <path d={`M${x - 6} 86q6-9 12 0`} stroke={ink} strokeWidth="2.7" strokeLinecap="round" fill="none" />;
   }

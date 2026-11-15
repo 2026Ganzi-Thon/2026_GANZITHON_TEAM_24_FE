@@ -22,7 +22,7 @@ const palettes = {
   MINT: ['#effff5', '#c2efda', '#7eb59f'],
 };
 
-export default function CharacterPortrait({ character = defaultCharacter, className = '', poke }) {
+export default function CharacterPortrait({ character = defaultCharacter, className = '', poke, expression }) {
   const id = useId();
   const { color, eyes, nose, mouth, eyebrows, accessory } = { ...defaultCharacter, ...character };
   const [light, middle, shade] = palettes[color] ?? palettes.PEACH;
@@ -62,10 +62,10 @@ export default function CharacterPortrait({ character = defaultCharacter, classN
       </defs>
       <ellipse cx="100" cy="150" rx="69" ry="6" fill="#564352" opacity=".12" />
       <path d="M31 108C29 79 45 48 64 35c20-15 47-16 65-4 28 16 43 49 40 77-3 29-25 44-68 44-35 0-67-15-70-44Z" fill={fill('body')} />
-      <path d="M42 94c-10-11-23-13-30-3-10 15 3 34 23 36 11 1 17-8 16-17-1-7-4-12-9-16Z" fill={fill('limb')} />
-      <path d="M158 94c10-11 23-13 30-3 10 15-3 34-23 36-11 1-17-8-16-17 1-7 4-12 9-16Z" fill={fill('limb')} />
-      <path d="M62 123c-16 0-25 12-23 23 2 9 13 12 26 11 13-1 22-8 20-18-1-9-10-16-23-16Z" fill={fill('limb')} />
-      <path d="M138 123c16 0 25 12 23 23-2 9-13 12-26 11-13-1-22-8-20-18 1-9 10-16 23-16Z" fill={fill('limb')} />
+      <path className="character-art__arm-left" d="M42 94c-10-11-23-13-30-3-10 15 3 34 23 36 11 1 17-8 16-17-1-7-4-12-9-16Z" fill={fill('limb')} />
+      <path className="character-art__arm-right" d="M158 94c10-11 23-13 30-3 10 15-3 34-23 36-11 1-17-8-16-17 1-7 4-12 9-16Z" fill={fill('limb')} />
+      <path className="character-art__foot-left" d="M62 123c-16 0-25 12-23 23 2 9 13 12 26 11 13-1 22-8 20-18-1-9-10-16-23-16Z" fill={fill('limb')} />
+      <path className="character-art__foot-right" d="M138 123c16 0 25 12 23 23-2 9-13 12-26 11-13-1-22-8-20-18 1-9 10-16 23-16Z" fill={fill('limb')} />
       <g className={poke?.side === 'left' ? 'character-art__pressed-cheek' : undefined} style={{ '--cheek-offset': '4px' }}>
         <ellipse cx="61" cy="100" rx="16" ry="10" fill={fill('blush')} />
         <path d="m55 102 3-5m4 6 3-5" fill="none" stroke="#ed998c" strokeWidth="2" strokeLinecap="round" />
@@ -74,10 +74,10 @@ export default function CharacterPortrait({ character = defaultCharacter, classN
         <ellipse cx="139" cy="100" rx="16" ry="10" fill={fill('blush')} />
         <path d="m134 102 3-5m4 6 3-5" fill="none" stroke="#ed998c" strokeWidth="2" strokeLinecap="round" />
       </g>
-      <CharacterPart kind="eyebrows" style={eyebrows} />
-      <CharacterPart kind="eyes" style={eyeStyle} winkSide={poke?.side} />
+      <CharacterPart kind="eyebrows" style={expression?.eyebrows ?? eyebrows} />
+      <CharacterPart kind="eyes" style={expression?.eyes ?? eyeStyle} winkSide={poke?.side} />
       <CharacterPart kind="nose" style={nose} />
-      <CharacterPart kind="mouth" style={poke ? 'STYLE_2' : mouth} />
+      <CharacterPart kind="mouth" style={poke ? 'STYLE_2' : expression?.mouth ?? mouth} />
       <CharacterPart kind="accessory" style={accessory} cap={fill('cap')} band={fill('band')} />
       {poke && (
         <g key={poke.id} transform={poke.side === 'right' ? 'translate(200 0) scale(-1 1)' : undefined}>
