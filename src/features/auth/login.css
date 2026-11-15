@@ -1,0 +1,104 @@
+.auth-shell:has(.login-page) {
+  background: var(--color-surface);
+}
+
+.auth-content:has(.login-page) {
+  justify-content: flex-start;
+  max-width: 406px;
+  padding: 0;
+}
+
+.login-page {
+  --login-blue: #3777cb;
+  padding: max(clamp(58px, 17.4dvh, 152px), env(safe-area-inset-top))
+    max(clamp(20px, 6.7vw, 27px), env(safe-area-inset-right))
+    max(32px, env(safe-area-inset-bottom))
+    max(clamp(20px, 6.7vw, 27px), env(safe-area-inset-left));
+  text-align: center;
+}
+
+.login-page__intro h1 {
+  color: #1c1c1c;
+  font-size: clamp(21px, 6.5vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.25;
+  word-break: keep-all;
+}
+
+.login-page__intro h1 span {
+  color: #3979cd;
+}
+
+.login-page__intro p {
+  margin-top: 12px;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.login-page__form {
+  margin-top: 34px;
+}
+
+.login-page__fields {
+  display: grid;
+  gap: 6px;
+}
+
+.login-page .field__input {
+  min-width: 0;
+  min-height: 59px;
+  padding-inline: 22px;
+  border-color: #fafafa;
+  border-radius: 18px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 4%);
+}
+
+.login-page .field__input::placeholder {
+  color: #727272;
+  font-size: 12px;
+}
+
+.login-page__submit {
+  position: relative;
+  margin-top: clamp(48px, 8.6dvh, 75px);
+}
+
+.login-page__submit .btn {
+  --color-primary: var(--login-blue);
+  min-height: 55px;
+  border-radius: 16px;
+}
+
+.login-page__signup {
+  margin-top: 38px;
+  color: #727272;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.login-page__signup a {
+  display: inline-grid;
+  place-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-primary-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.login-page__notice {
+  color: var(--color-text-sub);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.login-page__submit .login-page__notice {
+  position: absolute;
+  inset: calc(100% + 8px) 0 auto;
+}

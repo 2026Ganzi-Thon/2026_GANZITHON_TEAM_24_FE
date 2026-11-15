@@ -1,0 +1,19 @@
+.auth-shell:has(.splash-page) {
+  background: var(--color-surface);
+}
+
+.auth-content:has(.splash-page) {
+  padding: 0;
+}
+
+.splash-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+}
+
+.splash-page__logo {
+  width: 102px;
+  aspect-ratio: 1;
+  background: #d9d9d9;
+}
