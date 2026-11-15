@@ -1,0 +1,31 @@
+/* z-index: -1 이라 부모(isolation: isolate)의 다른 내용 뒤에 깔린다 */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 사진에만 5px 블러. 좌우 6px 넘치게 해서 블러로 흐려진 가장자리가 보이지 않게 한다 */
+.photo {
+  position: absolute;
+  top: var(--vent-header-h);
+  right: -6px;
+  bottom: 0;
+  left: -6px;
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: cover;
+  filter: blur(5px);
+}
+
+/* 위는 투명, 60.6% 지점부터 아래는 완전한 연한 파랑 */
+.tint {
+  position: absolute;
+  top: var(--vent-header-h);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to bottom, rgba(230, 240, 255, 0) 0%, var(--vent-tint) 60.577%);
+}

@@ -205,10 +205,46 @@
   justify-content: center;
   width: 96px;
   height: 87px;
+  padding: 0;
   border: 1px solid rgba(57, 123, 209, 0.3);
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 0 4px rgba(57, 123, 209, 0.2);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.moodCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 고른 기분: 안도는 연한 파랑, 불편은 연한 분홍 */
+.moodRelieved[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  background: #eaf3ff;
+}
+
+.moodUneasy[aria-pressed='true'] {
+  border-color: #e5a3a3;
+  background: #fdeeee;
+}
+
+/* 버리기: 모션 컴포넌트가 감싸는 화면 전체 (배경·헤더·본문) */
+.discardMotion {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.discardScreen {
+  position: relative;
+  isolation: isolate; /* 이 안에서 배경(z-index: -1)이 화면 내용 뒤에 깔리게 */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 결과 */

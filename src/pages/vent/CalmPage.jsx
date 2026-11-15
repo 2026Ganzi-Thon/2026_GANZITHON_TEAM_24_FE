@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { AFTER_CALM_PATH, STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
-import CharacterStage from '../../features/vent/components/CharacterStage';
+import { VentBreathingMotion } from '../../features/vent/motions';
+import { useSelectedCharacter } from '../../features/vent/useSelectedCharacter';
 import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
 import VentHeader from '../../features/vent/components/VentHeader';
 import styles from './Vent.module.css';
@@ -12,6 +13,7 @@ export default function CalmPage() {
   const navigate = useNavigate();
   const result = useVentStore((s) => s.result);
   const selected = useVentStore((s) => s.selectedEmotions);
+  const character = useSelectedCharacter();
   const [retried, setRetried] = useState(false); // "아니 아직.." 을 눌렀는지
 
   // 앞 단계를 거치지 않았거나 새로고침했으면 처음부터 (감정 후보 화면과 같은 규칙)
@@ -44,7 +46,7 @@ export default function CalmPage() {
         </p>
 
         <div className={styles.calmStage}>
-          <CharacterStage motion="breathing" size="lg" />
+          <VentBreathingMotion character={character} />
         </div>
 
         <div className={styles.calmActions}>
