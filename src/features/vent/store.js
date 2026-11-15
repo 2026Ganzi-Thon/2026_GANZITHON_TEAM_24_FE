@@ -9,6 +9,7 @@ const initialState = {
   texts: [], // 사용자 글만 따로 보관. 감정 "선택 완료"에서 지운다
   result: null, // POST /vent/result 응답 (emotions, needs, wantedReaction, situation, plan)
   selectedEmotions: [],
+  editedFields: [], // 2단계에서 사용자가 고친 칸 이름 (말풍선에 'AI 초안' 대신 '내가 고친 글' 표시용)
   loading: false,
 };
 
@@ -35,6 +36,15 @@ export const useVentStore = create((set) => ({
       messages: [],
       selectedEmotions: [],
     })),
+
+  // 2단계 화면에서 사용자가 고친 값으로 초안을 덮어쓴다 (서버로 보내지 않는다)
+  updateResult: (patch, editedKey) =>
+    set((s) => {
+      if (!s.result) return {};
+      const editedFields =
+        editedKey && !s.editedFields.includes(editedKey) ? [...s.editedFields, editedKey] : s.editedFields;
+      return { result: { ...s.result, ...patch }, editedFields };
+    }),
 
   // '후보 다시 보기': 감정 후보만 바꾸고 나머지 초안은 처음 받은 것을 그대로 쓴다
   replaceEmotions: (emotions) =>

@@ -8,6 +8,12 @@
   justify-content: flex-end;
 }
 
+/* 아바타(CharacterStage sm, 48px) 자리만 비워 두기 */
+.avatarGap {
+  flex-shrink: 0;
+  width: 48px;
+}
+
 .col {
   display: flex;
   flex-direction: column;
