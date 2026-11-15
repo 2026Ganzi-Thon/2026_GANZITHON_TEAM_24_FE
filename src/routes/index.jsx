@@ -1,5 +1,9 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
+import HomePage from '../features/character/HomePage';
+import RoomActivityPage from '../features/character/RoomActivityPage';
+import CustomizationPage from '../features/character/CustomizationPage';
+import ProfilePage from '../features/character/ProfilePage';
 import AuthLayout from '../layouts/AuthLayout';
 import LoginPage from '../features/auth/LoginPage';
 import SignupPage from '../features/auth/SignupPage';
@@ -39,7 +43,11 @@ export default function AppRoutes() {
           </RequireAuth>
         }
       >
-        <Route path="/home" element={null} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/play" element={<RoomActivityPage key="play" />} />
+        <Route path="/compliments" element={<RoomActivityPage key="compliments" mode="compliments" />} />
+        <Route path="/customization" element={<CustomizationPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         {/* 각 파트 라우트를 여기에 추가 */}
       </Route>
 

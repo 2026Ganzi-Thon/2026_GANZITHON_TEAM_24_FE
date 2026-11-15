@@ -1,0 +1,11 @@
+.character-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 200 / 159;
+}
+
+.room-character-list__grid .character-art {
+  width: min(100%, clamp(74px, 18svh, 142px));
+  margin-inline: auto;
+}
