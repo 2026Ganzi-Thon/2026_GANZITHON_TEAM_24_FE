@@ -9,10 +9,12 @@ function formatTime(timestamp) {
 }
 
 // role: 'assistant'(캐릭터, 왼쪽 + 아바타) | 'user'(나, 오른쪽)
+// showAvatar: false 면 아바타 자리를 비워 두고 정렬만 맞춘다 (말풍선 묶음의 두 번째부터)
 // time: 보내면 시각을 보여 준다. timePosition 'side'(말풍선 옆 아래, 기본) | 'below'(말풍선 아래)
 // typing: 캐릭터가 답을 쓰는 중 (점 세 개)
 export default function ChatBubble({
   role = 'assistant',
+  showAvatar = true,
   time,
   timePosition = 'side',
   typing = false,
@@ -23,11 +25,12 @@ export default function ChatBubble({
 
   return (
     <div className={`${styles.row} ${isUser ? styles.user : styles.assistant}`}>
-      {!isUser && <CharacterStage size="sm" />}
+      {!isUser &&
+        (showAvatar ? <CharacterStage size="sm" /> : <span className={styles.avatarGap} aria-hidden="true" />)}
       <div className={styles.col}>
         <div className={styles.line}>
           {isUser && timePosition === 'side' && timeLabel}
-          <p className={styles.bubble}>
+          <div className={styles.bubble}>
             {typing ? (
               <span className={styles.dots} role="status" aria-label="입력 중">
                 <i />
@@ -37,7 +40,7 @@ export default function ChatBubble({
             ) : (
               children
             )}
-          </p>
+          </div>
           {!isUser && timePosition === 'side' && timeLabel}
         </div>
         {timePosition === 'below' && timeLabel}
