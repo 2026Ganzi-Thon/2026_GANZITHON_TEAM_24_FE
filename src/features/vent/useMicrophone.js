@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 // 브라우저마다 녹음 형식이 다르다 (안드로이드 크롬=webm, 아이폰 사파리=mp4). 되는 것을 고른다.
 const MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+const MAX_RECORDING_MS = 60_000;
 
 function pickMimeType() {
   if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
@@ -20,6 +21,7 @@ export function useMicrophone({ onRecorded } = {}) {
   const [error, setError] = useState('');
   const streamRef = useRef(null);
   const recorderRef = useRef(null);
+  const stopTimerRef = useRef(null);
   const chunksRef = useRef([]);
   const aliveRef = useRef(true);
   const onRecordedRef = useRef(onRecorded);
@@ -29,6 +31,8 @@ export function useMicrophone({ onRecorded } = {}) {
   });
 
   const releaseStream = () => {
+    window.clearTimeout(stopTimerRef.current);
+    stopTimerRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   };
@@ -47,6 +51,8 @@ export function useMicrophone({ onRecorded } = {}) {
   };
 
   const stop = useCallback(() => {
+    window.clearTimeout(stopTimerRef.current);
+    stopTimerRef.current = null;
     const recorder = recorderRef.current;
     if (!recorder || recorder.state === 'inactive') {
       discardRecording();
@@ -93,6 +99,7 @@ export function useMicrophone({ onRecorded } = {}) {
       };
       recorderRef.current = recorder;
       recorder.start();
+      stopTimerRef.current = window.setTimeout(stop, MAX_RECORDING_MS);
       setStatus('listening');
     } catch (e) {
       discardRecording();
@@ -106,7 +113,7 @@ export function useMicrophone({ onRecorded } = {}) {
         setError('마이크를 켜지 못했어요. 다시 시도해 주세요.');
       }
     }
-  }, []);
+  }, [stop]);
 
   // 화면을 떠나면 마이크를 반드시 끄고 녹음은 버린다
   useEffect(() => {

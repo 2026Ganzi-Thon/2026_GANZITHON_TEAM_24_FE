@@ -51,6 +51,7 @@ export default function VentChatPage() {
     setTranscribing(true);
     try {
       const text = (await postStt(blob, { signal: controller.signal })).trim();
+      if (controller.signal.aborted) return;
       if (!text) {
         setError('말소리가 잘 안 들렸어. 다시 말해줄래?');
         return;

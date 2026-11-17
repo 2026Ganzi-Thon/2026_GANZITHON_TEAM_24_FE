@@ -11,6 +11,7 @@ import api from '../../lib/api';
 //   (모든 응답은 { success, data, error } 로 오고, 여기서는 data 만 돌려준다)
 
 const USE_MOCK = true; // 서버가 구현되면 false
+const STT_ENABLED = import.meta.env.VITE_STT_ENABLED === 'true';
 const AI_TIMEOUT = 35000; // AI 응답은 최대 30초이므로 여유를 둔다 (lib/api.js 기본 10초로는 부족)
 const MAX_ITEMS = 20; // 서버 규칙: messages·texts 는 최대 20개
 
@@ -32,7 +33,7 @@ export async function postVentResult({ texts, exclude = [] }) {
 }
 
 // 음성 → 글. 녹음 파일(blob)을 보내고 변환된 text 를 돌려준다.
-//   POST /api/v1/stt  multipart 필드 audio (10MB 이하) → { text, durationSec }
+//   POST /api/v1/stt  multipart 필드 file (10MiB 이하)와 sessionId → { text, durationSeconds }
 // 공통 axios 의 기본 Content-Type(application/json)이면 FormData 가 JSON 으로 바뀌어 버리므로
 // 이 요청에서만 multipart 로 덮어쓴다 (브라우저가 boundary 를 붙여 준다).
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024; // 서버 규칙: 10MB
@@ -42,31 +43,46 @@ export async function postStt(blob, { signal } = {}) {
   if (blob.size > MAX_AUDIO_BYTES) {
     throw Object.assign(new Error('audio too large'), { sttTooLong: true });
   }
-  if (USE_MOCK) return mockStt(signal);
+  if (!STT_ENABLED) return mockStt(signal);
+  signal?.throwIfAborted();
+
+  // 현재 하소연 화면은 모의 응답을 쓰므로 변환 요청에만 사용할 세션을 연다.
+  const sessionPath = '/api/v1/vent/sessions';
+  const session = await api.post(sessionPath);
+  const sessionId = session.data.data.sessionId;
   const baseType = (blob.type || 'audio/webm').split(';')[0];
   const form = new FormData();
-  form.append('audio', blob, `voice.${AUDIO_EXTENSIONS[baseType] ?? 'webm'}`);
-  const res = await api.post('/api/v1/stt', form, {
-    timeout: AI_TIMEOUT,
-    signal,
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return res.data.data.text;
+  form.append('file', blob, `voice.${AUDIO_EXTENSIONS[baseType] ?? 'webm'}`);
+  form.append('sessionId', sessionId);
+  try {
+    const res = await api.post('/api/v1/stt', form, {
+      timeout: AI_TIMEOUT,
+      signal,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data.data.text;
+  } finally {
+    // 변환이 실패하거나 화면을 떠난 경우에도 서버에 세션 종료를 요청한다.
+    await api.delete(`${sessionPath}/${sessionId}`).catch(() => {});
+  }
 }
 
 // 서버 error.code 별 화면 문구. 모르는 코드나 네트워크 오류는 fallbackText
-const STT_FAILED = '음성을 글로 바꾸지 못했어요. 다시 말해 줄래?'; // STT_001~003 의미가 확정되면 나눈다
+const STT_TOO_LONG = '녹음이 너무 길거나 파일이 커요. 조금 나눠서 말해줄래?';
 const ERROR_MESSAGES = {
   CHAT_001: '글이 비어 있거나 너무 길어요. (1000자까지 쓸 수 있어요)',
   COMMON_001: '요청을 확인해 주세요. 다시 시도해 줄래?',
-  STT_001: STT_FAILED,
-  STT_002: STT_FAILED,
-  STT_003: STT_FAILED,
+  STT_001: '지원하지 않는 녹음 형식이에요. 글로 입력해 주세요.',
+  STT_002: STT_TOO_LONG,
+  STT_003: '음성을 글로 바꾸지 못했어요. 다시 말해 줄래?',
+  STT_004: '지금은 음성 인식을 사용할 수 없어요. 글로 입력해 주세요.',
+  STT_005: '음성 인식 요청이 많아요. 잠시 후 다시 시도해 주세요.',
+  STT_006: '말소리가 잘 안 들렸어. 다시 말해줄래?',
   COMMON_002: '로그인이 필요해요. 다시 로그인해 주세요.', // 토큰 지우기·로그인 이동은 A파트 인증 작업
 };
 
 export function getErrorMessage(error, fallbackText) {
-  if (error?.sttTooLong) return '녹음이 너무 길어요. 조금 나눠서 말해줄래?';
+  if (error?.sttTooLong) return STT_TOO_LONG;
   const code = error?.response?.data?.error?.code;
   return ERROR_MESSAGES[code] ?? fallbackText;
 }
