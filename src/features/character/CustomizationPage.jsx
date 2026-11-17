@@ -10,10 +10,8 @@ import { createCharacter, deleteCharacter, requestMessage, updateCharacter, upda
 import { useCharacterStore } from './store';
 import './customization.css';
 
-// 서버가 받는 꾸미기 값(백엔드 명세): 눈·입·눈썹은 STYLE_1~6, 코·악세서리는 STYLE_1~6 또는 '' (선택 안 함).
-// 화면의 기본 캐릭터는 'DEFAULT'(코·입·눈썹), 'NIGHTCAP'(기본 수면 모자) 같은 화면 전용 값을 쓰므로 저장할 때만 바꿔서 보낸다.
-//   - 눈·입·눈썹의 'DEFAULT'는 STYLE_1과 똑같이 그려지고, 코의 'DEFAULT'는 코 없음('')과 같다
-//   - 'NIGHTCAP'은 서버가 저장할 수 없어서 ''(악세서리 없음)으로 보낸다
+// 화면 기본값인 DEFAULT는 필수 항목에서 STYLE_1, 코에서는 빈 값으로 전송한다.
+// 기본 수면 모자는 액세서리 값 NIGHTCAP으로 전송한다.
 const STYLE_VALUE = /^STYLE_[1-6]$/;
 const requiredStyle = (value) => (STYLE_VALUE.test(value) ? value : 'STYLE_1');
 const optionalStyle = (value) => (STYLE_VALUE.test(value) ? value : '');
@@ -76,7 +74,7 @@ export default function CustomizationPage() {
       nose: optionalStyle(nose),
       mouth: requiredStyle(mouth),
       eyebrows: requiredStyle(eyebrows),
-      accessory: optionalStyle(accessory),
+      accessory: accessory === 'NIGHTCAP' ? accessory : optionalStyle(accessory),
     };
     setPending(true);
     setNotice('');
