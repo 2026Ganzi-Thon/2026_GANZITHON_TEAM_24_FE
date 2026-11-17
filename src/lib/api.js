@@ -8,11 +8,25 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// 토큰이 있으면 요청 헤더에 붙인다 (인증 실패 처리 정책은 A파트에서 추가)
+// 토큰이 있으면 요청 헤더에 붙인다
 api.interceptors.request.use((config) => {
   const { token } = useAuthStore.getState();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+// 토큰이 없거나 만료되면(COMMON_002, 탈퇴한 계정 포함) 토큰을 지우고 로그인 화면으로 보낸다 (API 명세).
+// 로그인 실패(AUTH_002)도 401 이라서 반드시 error.code 로 구분한다.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.data?.error?.code === 'COMMON_002') {
+      useAuthStore.getState().logout();
+      const { pathname } = window.location;
+      if (pathname !== '/login' && pathname !== '/signup') window.location.replace('/login');
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default api;

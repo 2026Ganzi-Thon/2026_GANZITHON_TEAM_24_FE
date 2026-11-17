@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import api from '../../lib/api';
 import { useAuthStore } from '../auth/useAuth';
 import { getCharacters } from '../character/roomApi';
 
@@ -14,10 +15,19 @@ export const useSelectedCharacterStore = create((set) => ({
 //   1) 홈에서 넘겨 준 캐릭터(router state)가 있으면 그대로
 //   2) 없으면(메뉴로 들어온 경우 등) 로그인 상태에서 내 캐릭터 목록의 첫 번째 (홈이 기본으로 고르는 캐릭터와 같다)
 //   3) 그것도 안 되면 기본 캐릭터
+// 홈에서 "저장된 캐릭터"를 골라 들어온 경우에만 사용 표시(POST /characters/{id}/use)를 보낸다 (명세).
+// 기본 말랑이(id 없음)와 메뉴로 들어온 경우는 보내지 않고, 실패해도 하소연은 그대로 진행한다.
 export async function startWithCharacter(passed) {
   const { setCharacter } = useSelectedCharacterStore.getState();
   setCharacter(passed ?? null);
-  if (passed || !useAuthStore.getState().token) return;
+
+  if (passed) {
+    if (passed.id != null && useAuthStore.getState().token) {
+      api.post(`/api/v1/characters/${passed.id}/use`).catch(() => {});
+    }
+    return;
+  }
+  if (!useAuthStore.getState().token) return;
 
   try {
     const data = await getCharacters();

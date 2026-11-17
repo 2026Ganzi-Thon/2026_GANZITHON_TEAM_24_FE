@@ -12,7 +12,6 @@ const nicknamePattern = /^[ㄱ-ㅎㅏ-ㅣ가-힣A-Za-z0-9]{1,10}$/;
 
 export default function SignupPage() {
   const [step, setStep] = useState(0);
-  const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,8 +65,8 @@ export default function SignupPage() {
     setError('');
 
     if (screen === 'consent') {
-      if (agreeTerms && agreePrivacy) changeStep(step + 1);
-      else setError('필수 약관에 모두 동의해 주세요.');
+      if (agreePrivacy) changeStep(step + 1);
+      else setError('개인정보 수집·이용에 동의해 주세요.');
       return;
     }
 
@@ -96,7 +95,7 @@ export default function SignupPage() {
           return;
         }
       } else {
-        const { userId } = await signup({ email, password, nickname, agreeTerms, agreePrivacy });
+        const { userId } = await signup({ email, password, nickname, agreePrivacy });
         if (userId == null) throw new Error('Missing account ID');
         setPassword('');
         setConfirmation('');
@@ -161,20 +160,14 @@ export default function SignupPage() {
           <form className="signup-page__form" onSubmit={handleSubmit} aria-busy={pending}>
             <fieldset className="signup-page__fields" disabled={pending}>
               {screen === 'consent' && (
-                <>
+                <div className="signup-page__agreement-row">
                   <label className="signup-page__agreement">
-                    <input type="checkbox" checked={agreeTerms} onChange={(event) => update(setAgreeTerms, event.target.checked)} />
-                    <span>이용약관 동의 (필수)</span>
+                    <input type="checkbox" checked={agreePrivacy} onChange={(event) => update(setAgreePrivacy, event.target.checked)} />
+                    <span>개인정보 수집·이용 동의 (필수)</span>
                   </label>
-                  <div className="signup-page__agreement-row">
-                    <label className="signup-page__agreement">
-                      <input type="checkbox" checked={agreePrivacy} onChange={(event) => update(setAgreePrivacy, event.target.checked)} />
-                      <span>개인정보 수집·이용 동의 (필수)</span>
-                    </label>
-                    <button type="button" className="signup-page__details" aria-label="개인정보 수집·이용 안내 보기"
-                      onClick={() => privacyDialog.current.showModal()}>›</button>
-                  </div>
-                </>
+                  <button type="button" className="signup-page__details" aria-label="개인정보 수집·이용 안내 보기"
+                    onClick={() => privacyDialog.current.showModal()}>›</button>
+                </div>
               )}
               {screen === 'email' && (
                 <Input name="email" type="email" placeholder="이메일" aria-label="이메일" autoComplete="username"
