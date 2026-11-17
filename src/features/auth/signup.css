@@ -75,10 +75,10 @@
 }
 
 .signup-page__logo {
-  width: 102px;
-  aspect-ratio: 1;
+  width: 150px;
+  aspect-ratio: 1220 / 417;
   margin-bottom: 30px;
-  background: #d9d9d9;
+  background: url('../../assets/icons/Logo.svg') left center / contain no-repeat;
 }
 
 .signup-page__form {

@@ -34,13 +34,11 @@
 }
 
 .room-logo {
-  display: inline-grid;
-  min-width: 120px;
-  min-height: 44px;
-  place-items: center;
-  background: #d9d9d9;
-  color: #172941;
-  font-size: 16px;
+  display: inline-block;
+  width: 105px;
+  aspect-ratio: 1220 / 417;
+  background: url('../../assets/icons/Logo.svg') center / contain no-repeat;
+  font-size: 0; /* 글자(Toro)는 스크린 리더용으로만 남긴다 */
 }
 
 .room-shell:has(.room-profile) {

@@ -31,13 +31,42 @@ export async function postVentResult({ texts, exclude = [] }) {
   return res.data.data;
 }
 
+// 음성 → 글. 녹음 파일(blob)을 보내고 변환된 text 를 돌려준다.
+//   POST /api/v1/stt  multipart 필드 audio (10MB 이하) → { text, durationSec }
+// 공통 axios 의 기본 Content-Type(application/json)이면 FormData 가 JSON 으로 바뀌어 버리므로
+// 이 요청에서만 multipart 로 덮어쓴다 (브라우저가 boundary 를 붙여 준다).
+const MAX_AUDIO_BYTES = 10 * 1024 * 1024; // 서버 규칙: 10MB
+const AUDIO_EXTENSIONS = { 'audio/webm': 'webm', 'audio/mp4': 'm4a', 'audio/ogg': 'ogg' };
+
+export async function postStt(blob, { signal } = {}) {
+  if (blob.size > MAX_AUDIO_BYTES) {
+    throw Object.assign(new Error('audio too large'), { sttTooLong: true });
+  }
+  if (USE_MOCK) return mockStt(signal);
+  const baseType = (blob.type || 'audio/webm').split(';')[0];
+  const form = new FormData();
+  form.append('audio', blob, `voice.${AUDIO_EXTENSIONS[baseType] ?? 'webm'}`);
+  const res = await api.post('/api/v1/stt', form, {
+    timeout: AI_TIMEOUT,
+    signal,
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.data.text;
+}
+
 // 서버 error.code 별 화면 문구. 모르는 코드나 네트워크 오류는 fallbackText
+const STT_FAILED = '음성을 글로 바꾸지 못했어요. 다시 말해 줄래?'; // STT_001~003 의미가 확정되면 나눈다
 const ERROR_MESSAGES = {
   CHAT_001: '글이 비어 있거나 너무 길어요. (1000자까지 쓸 수 있어요)',
+  COMMON_001: '요청을 확인해 주세요. 다시 시도해 줄래?',
+  STT_001: STT_FAILED,
+  STT_002: STT_FAILED,
+  STT_003: STT_FAILED,
   COMMON_002: '로그인이 필요해요. 다시 로그인해 주세요.', // 토큰 지우기·로그인 이동은 A파트 인증 작업
 };
 
 export function getErrorMessage(error, fallbackText) {
+  if (error?.sttTooLong) return '녹음이 너무 길어요. 조금 나눠서 말해줄래?';
   const code = error?.response?.data?.error?.code;
   return ERROR_MESSAGES[code] ?? fallbackText;
 }
@@ -64,6 +93,12 @@ async function mockVent(messages) {
     reply: MOCK_REPLIES[(userCount - 1) % MOCK_REPLIES.length],
     fallback: false,
   };
+}
+
+async function mockStt(signal) {
+  await sleep(800);
+  if (signal?.aborted) throw Object.assign(new Error('canceled'), { code: 'ERR_CANCELED' });
+  return '오늘 팀플 발표 자료를 내가 혼자 다 만들었는데 이름이 빠져서 너무 억울했어.';
 }
 
 const MOCK_EMOTION_POOL = ['억울함', '분노', '무력감', '답답함', '서운함', '불안', '배신감'];

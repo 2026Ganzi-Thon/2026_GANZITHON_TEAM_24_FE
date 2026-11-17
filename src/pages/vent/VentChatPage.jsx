@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getErrorMessage, postVent, postVentResult } from '../../features/vent/api';
-import { MORE_TALK_LABEL, MORE_TALK_REPLY } from '../../features/vent/constants';
+import { getErrorMessage, postStt, postVent, postVentResult } from '../../features/vent/api';
+import { CHAT_MAX_LENGTH, MORE_TALK_LABEL, MORE_TALK_REPLY } from '../../features/vent/constants';
 import { callName, subject } from '../../features/vent/korean';
 import { maskProfanity } from '../../features/vent/maskProfanity';
 import { loadNickname, useNickname } from '../../features/vent/profile';
@@ -40,8 +40,38 @@ export default function VentChatPage() {
   const character = useSelectedCharacter();
   const endRef = useRef(null);
   const inputRef = useRef(null);
-  const mic = useMicrophone();
+  const [transcribing, setTranscribing] = useState(false); // 녹음을 글로 바꾸는 중
+  const sttAbortRef = useRef(null);
+
+  // 녹음이 끝나면 글로 바꿔서 입력창에 이어 붙인다 (바로 보내지 않는다. 마이크를 다시 누르면 계속 이어 붙는다)
+  const handleRecorded = async (blob) => {
+    const controller = new AbortController();
+    sttAbortRef.current = controller;
+    setError('');
+    setTranscribing(true);
+    try {
+      const text = (await postStt(blob, { signal: controller.signal })).trim();
+      if (!text) {
+        setError('말소리가 잘 안 들렸어. 다시 말해줄래?');
+        return;
+      }
+      setInput((previous) => (previous.trim() ? `${previous.trim()} ${text}` : text).slice(0, CHAT_MAX_LENGTH));
+    } catch (e) {
+      if (controller.signal.aborted) return; // 화면을 떠나서 취소한 것
+      setError(getErrorMessage(e, '음성을 글로 바꾸지 못했어요. 다시 말해 줄래?'));
+    } finally {
+      if (!controller.signal.aborted) {
+        setTranscribing(false);
+        setTimeout(() => inputRef.current?.focus(), 0); // 입력창이 다시 켜진 뒤에 포커스
+      }
+    }
+  };
+
+  const mic = useMicrophone({ onRecorded: handleRecorded });
   const listening = mic.status === 'listening';
+
+  // 변환 중에 화면을 떠나면 요청을 취소한다
+  useEffect(() => () => sttAbortRef.current?.abort(), []);
 
   // 하소연을 시작할 때 쓸 캐릭터 정하기 (홈에서 넘겨 준 캐릭터 → 내 첫 캐릭터 → 기본 캐릭터)
   useEffect(() => {
@@ -57,7 +87,7 @@ export default function VentChatPage() {
     endRef.current?.scrollIntoView({ block: 'end' });
   }, [messages, loading]);
 
-  const busy = loading || finishing;
+  const busy = loading || finishing || transcribing;
   // 선택지는 캐릭터가 (실제로) 답한 직후, 또는 돌아와서 글이 되살아난 직후(resumed)에만 보인다.
   // "더 이야기 하고 싶어!"로 나온 안내 말풍선 뒤에는 숨긴다
   const lastMessage = messages[messages.length - 1];
@@ -175,6 +205,7 @@ export default function VentChatPage() {
             onMicClick={mic.start}
             listening={listening}
             onStop={mic.stop}
+            placeholder={transcribing ? '글로 바꾸는 중…' : undefined}
             inputRef={inputRef}
             footerNote="여기 적은 내용은 어디에도 저장되지 않아요."
           />

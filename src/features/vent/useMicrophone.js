@@ -1,31 +1,76 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// 마이크 권한 요청 + "듣는 중" 상태.
+// 마이크 권한 요청 + 녹음.
 // 권한 창(시안의 '음성 권한' 화면)은 getUserMedia 를 부르면 브라우저/휴대폰이 직접 띄운다.
-// 녹음한 소리는 아직 어디에도 보내지 않는다.
-// TODO: STT 업체가 정해지면 녹음(MediaRecorder) → POST /stt → 받은 text 를 입력창에 넣기
+// 녹음한 소리는 이 화면의 메모리에만 두고, 정지(stop)하면 onRecorded(blob)로 한 번 넘긴 뒤 버린다.
+// 화면을 떠나면 녹음을 버리고 아무 데도 보내지 않는다.
 //
-// status: 'idle' | 'requesting'(권한 창 떠 있음) | 'listening'
-export function useMicrophone() {
+// status: 'idle' | 'requesting'(권한 창 떠 있음) | 'listening'(녹음 중)
+
+// 브라우저마다 녹음 형식이 다르다 (안드로이드 크롬=webm, 아이폰 사파리=mp4). 되는 것을 고른다.
+const MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+
+function pickMimeType() {
+  if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
+  return MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type)) ?? '';
+}
+
+export function useMicrophone({ onRecorded } = {}) {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const streamRef = useRef(null);
+  const recorderRef = useRef(null);
+  const chunksRef = useRef([]);
   const aliveRef = useRef(true);
+  const onRecordedRef = useRef(onRecorded);
+
+  useEffect(() => {
+    onRecordedRef.current = onRecorded;
+  });
 
   const releaseStream = () => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   };
 
-  const stop = useCallback(() => {
+  // 녹음 중이던 것을 버린다 (콜백 없이)
+  const discardRecording = () => {
+    const recorder = recorderRef.current;
+    recorderRef.current = null;
+    chunksRef.current = [];
+    if (recorder) {
+      recorder.ondataavailable = null;
+      recorder.onstop = null;
+      if (recorder.state !== 'inactive') recorder.stop();
+    }
     releaseStream();
-    setStatus('idle');
+  };
+
+  const stop = useCallback(() => {
+    const recorder = recorderRef.current;
+    if (!recorder || recorder.state === 'inactive') {
+      discardRecording();
+      setStatus('idle');
+      return;
+    }
+    recorder.onstop = () => {
+      const type = recorder.mimeType || 'audio/webm';
+      const blob = new Blob(chunksRef.current, { type });
+      recorderRef.current = null;
+      chunksRef.current = [];
+      releaseStream();
+      if (aliveRef.current) {
+        setStatus('idle');
+        onRecordedRef.current?.(blob);
+      }
+    };
+    recorder.stop();
   }, []);
 
   const start = useCallback(async () => {
     setError('');
     // http 로 휴대폰에서 접속하는 등 보안 연결이 아니면 마이크 API 자체가 없다
-    if (!navigator.mediaDevices?.getUserMedia) {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       setError('이 환경에서는 마이크를 쓸 수 없어요. (https 주소나 localhost에서만 가능해요)');
       return;
     }
@@ -39,8 +84,18 @@ export function useMicrophone() {
         return;
       }
       streamRef.current = stream;
+
+      const mimeType = pickMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      chunksRef.current = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data?.size > 0) chunksRef.current.push(event.data);
+      };
+      recorderRef.current = recorder;
+      recorder.start();
       setStatus('listening');
     } catch (e) {
+      discardRecording();
       if (!aliveRef.current) return;
       setStatus('idle');
       if (e?.name === 'NotAllowedError' || e?.name === 'SecurityError') {
@@ -53,12 +108,12 @@ export function useMicrophone() {
     }
   }, []);
 
-  // 화면을 떠나면 마이크를 반드시 끈다
+  // 화면을 떠나면 마이크를 반드시 끄고 녹음은 버린다
   useEffect(() => {
     aliveRef.current = true;
     return () => {
       aliveRef.current = false;
-      releaseStream();
+      discardRecording();
     };
   }, []);
 
