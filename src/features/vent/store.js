@@ -1,9 +1,11 @@
 import { create } from 'zustand';
-import { MAX_EMOTIONS, UNSURE_LABEL } from './constants';
+import { MAX_EMOTIONS, SITUATION_MAX_LENGTH, UNSURE_LABEL } from './constants';
 
 // 하소연 흐름 상태. 메모리에만 둔다 (persist, localStorage, sessionStorage 금지).
 // 새로고침하면 사라지고, 나가기/버리기에서 reset()으로 통째로 비운다.
 const initialState = {
+  sessionId: null, // 서버 대화 세션 ID (메모리에만. 새로고침하면 잃는다)
+  emotionConfirmed: false, // 감정 확정 뒤에는 서버가 하소연 단계로 되돌아갈 수 없다
   messages: [], // 하소연 대화 [{ id, role: 'user' | 'assistant', content, at, local }]
   //                local: true 는 화면에만 보이는 말풍선("더 이야기 하고 싶어!" 등). 서버로 보내지 않는다
   texts: [], // 사용자 글만 따로 보관. 감정 "선택 완료"에서 지운다
@@ -11,6 +13,11 @@ const initialState = {
   selectedEmotions: [],
   editedFields: [], // 2단계에서 사용자가 고친 칸 이름 (말풍선에 'AI 초안' 대신 '내가 고친 글' 표시용)
   loading: false,
+  // 서버 4~6단계(원했던 반응·3인칭·계획) 연결용. 모두 메모리에만 두고 버리기·나가기에서 비운다
+  situationText: '', // 하소연 글을 합친 것(최근 1000자). 서버가 초안을 만들 때마다 '상황'을 요구해서 감정 확정 뒤에도 들고 있는다
+  emotionText: '', // 감정 확정에 보낸 문자열 (확정 반응에도 같이 보낸다)
+  drafted: { reaction: false, summary: false, plan: false }, // AI 초안을 이미 받아 봤는지. 실패하면 오류 문구(문자열)
+  confirmed: { reflection: null, summary: null, plan: null }, // 서버에 확정한 값(문자열). 같으면 다시 보내지 않는다
 };
 
 let nextMessageId = 1;
@@ -25,10 +32,19 @@ export const useVentStore = create((set) => ({
 
   setLoading: (loading) => set({ loading }),
 
-  // "다 털어놓은 것 같아" 직후: 응답 저장, AI 답장은 지우고 사용자 글만 texts로 남긴다
-  commitResult: (result) =>
+  setSessionId: (sessionId) => set({ sessionId }),
+
+  // "다 털어놓은 것 같아" 직후: 서버가 준 감정 후보를 저장하고, AI 답장은 지우고 사용자 글만 texts로 남긴다.
+  // 서버가 아직 주지 않는 칸(상황·필요했던 것·원했던 반응·계획)은 빈 값이라 해당 화면은 직접 쓰는 상태로 열린다.
+  commitResult: (candidates) =>
     set((s) => ({
-      result,
+      result: {
+        emotions: candidates ?? [],
+        situation: '',
+        needs: [],
+        wantedReaction: '',
+        plan: { if: '', then: '' },
+      },
       texts: [
         ...s.texts,
         ...s.messages.filter((m) => m.role === 'user' && !m.local).map((m) => m.content),
@@ -85,6 +101,43 @@ export const useVentStore = create((set) => ({
     }),
 
   clearTexts: () => set({ texts: [] }),
+
+  // 서버에 감정을 확정한 뒤: 원문(texts)·대화(messages)를 지우고, 하소연 단계로 돌아갈 수 없게 표시한다
+  // (하소연 글은 서버 초안 요청에 상황으로 다시 필요해서 situationText 로 최근 1000자만 남긴다)
+  markEmotionConfirmed: (emotionText = '') =>
+    set((s) => ({
+      emotionConfirmed: true,
+      emotionText,
+      situationText: s.texts.join('\n').slice(-SITUATION_MAX_LENGTH).trim(),
+      texts: [],
+      messages: [],
+    })),
+
+  // AI 초안을 받아 봤다고 표시 (실패하면 오류 문구를 넣는다)
+  markDrafted: (key, status = true) => set((s) => ({ drafted: { ...s.drafted, [key]: status } })),
+
+  // 서버에 확정한 뒤: 스냅샷을 남기고, 서버가 지우는 뒤 단계(요약·계획)를 우리 쪽에서도 비운다
+  //   reflection 확정 → 3인칭·계획 삭제 / summary 확정 → 계획 삭제 / plan 확정 → 그대로
+  confirmStep: (key, snapshot) =>
+    set((s) => {
+      const confirmed = { ...s.confirmed, [key]: snapshot };
+      const drafted = { ...s.drafted };
+      let result = s.result;
+      let editedFields = s.editedFields;
+      if (key === 'reflection') {
+        confirmed.summary = null;
+        drafted.summary = false;
+        result = result && { ...result, situation: '' };
+        editedFields = editedFields.filter((f) => f !== 'situation');
+      }
+      if (key === 'reflection' || key === 'summary') {
+        confirmed.plan = null;
+        drafted.plan = false;
+        result = result && { ...result, plan: { if: '', then: '' } };
+        editedFields = editedFields.filter((f) => f !== 'plan');
+      }
+      return { confirmed, drafted, result, editedFields };
+    }),
 
   reset: () => set(initialState),
 }));

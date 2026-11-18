@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../../../components/navigation/TopBar';
 import { HOME_PATH } from '../steps';
-import { useVentStore } from '../store';
+import { endSession } from '../session';
 import { ExitIcon } from './icons';
 import ProgressSteps from './ProgressSteps';
 import styles from './VentHeader.module.css';
@@ -10,11 +10,10 @@ import styles from './VentHeader.module.css';
 // onBack 이 없으면 ← 를 그리지 않고(첫 화면), step 이 없으면 진행 막대를 그리지 않는다(위기지원안내).
 export default function VentHeader({ title, step, onBack }) {
   const navigate = useNavigate();
-  const reset = useVentStore((s) => s.reset);
 
-  // 나가면 쓰던 내용을 모두 비우고 홈으로
+  // 나가면 서버 세션을 지우도록 보내고 쓰던 내용을 모두 비운 뒤 홈으로
   const handleExit = () => {
-    reset();
+    endSession();
     navigate(HOME_PATH);
   };
 

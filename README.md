@@ -10,7 +10,7 @@ cp .env.example .env   # 서버 주소(VITE_API_BASE_URL), 기본값 http://loca
 npm run dev            # http://localhost:5173
 ```
 
-서버가 꺼져 있으면 가입·로그인·캐릭터가 동작하지 않는다. 하소연 흐름(`/vent`)은 가짜 응답이라 서버 없이 확인할 수 있다.
+서버가 꺼져 있으면 가입·로그인·캐릭터·하소연이 동작하지 않는다. 서버 없이 하소연 흐름(`/vent`)을 보려면 `.env`에 `VITE_VENT_MOCK=true`를 넣는다(가짜 응답).
 
 ## 기술 스택
 
@@ -38,7 +38,7 @@ src/
 `/vent` → `/vent/emotions` → `/vent/calm` → `/vent/reaction` → `/vent/situation` → `/vent/plan` → `/vent/result` → `/vent/discard` → `/vent/done` (예외: `/vent/crisis`, `/vent/delete-failed`)
 
 - 대화·정리 결과는 서버와 브라우저 저장소에 저장하지 않고 메모리(zustand)에만 둔다. 새로고침하면 사라진다.
-- 서버 연결: 가입·로그인·내 정보·캐릭터는 연결됨. `/vent`, `/vent/result`는 가짜 응답(`features/vent/api.js`의 `USE_MOCK`), 음성 `/stt`는 미구현.
+- 서버 연결: 가입·로그인·내 정보·캐릭터는 연결됨. 하소연 전체(공감·음성·감정 후보·진정·원했던 반응·3인칭·계획·버리기)도 연결됨. 초안은 하소연 글을 상황으로 보내 받는다.
 
 ## 화면 추가하는 법
 

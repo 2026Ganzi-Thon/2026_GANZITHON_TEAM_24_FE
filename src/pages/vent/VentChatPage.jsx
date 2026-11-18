@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getErrorMessage, postStt, postVent, postVentResult } from '../../features/vent/api';
+import { getErrorMessage, postStt, sendMessage, suggestEmotions } from '../../features/vent/api';
 import { CHAT_MAX_LENGTH, MORE_TALK_LABEL, MORE_TALK_REPLY } from '../../features/vent/constants';
 import { callName, subject } from '../../features/vent/korean';
 import { maskProfanity } from '../../features/vent/maskProfanity';
 import { loadNickname, useNickname } from '../../features/vent/profile';
 import { startWithCharacter } from '../../features/vent/selectedCharacter';
+import { endSession, ensureSession, leaveIfSessionGone } from '../../features/vent/session';
 import { CRISIS_PATH, STEP_NO, VENT_PATHS } from '../../features/vent/steps';
 import { useVentStore } from '../../features/vent/store';
 import { useMicrophone } from '../../features/vent/useMicrophone';
@@ -18,7 +19,7 @@ import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
 import VentHeader from '../../features/vent/components/VentHeader';
 import styles from './Vent.module.css';
 
-const EMPTY_REPLY = '잘 듣고 있어. 계속 이야기해 줘.'; // AI가 실패(fallback)해서 답이 비었을 때
+const EMPTY_REPLY = '잘 듣고 있어. 계속 이야기해 줘.'; // 공감이 비어 있을 때
 
 // 1단계: 하소연하기 (캐릭터와 대화)
 export default function VentChatPage() {
@@ -29,7 +30,6 @@ export default function VentChatPage() {
   const addMessage = useVentStore((s) => s.addMessage);
   const setLoading = useVentStore((s) => s.setLoading);
   const commitResult = useVentStore((s) => s.commitResult);
-  const reset = useVentStore((s) => s.reset);
 
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
@@ -50,7 +50,8 @@ export default function VentChatPage() {
     setError('');
     setTranscribing(true);
     try {
-      const text = (await postStt(blob, { signal: controller.signal })).trim();
+      const sessionId = await ensureSession();
+      const text = (await postStt(blob, { sessionId, signal: controller.signal })).trim();
       if (controller.signal.aborted) return;
       if (!text) {
         setError('말소리가 잘 안 들렸어. 다시 말해줄래?');
@@ -59,6 +60,7 @@ export default function VentChatPage() {
       setInput((previous) => (previous.trim() ? `${previous.trim()} ${text}` : text).slice(0, CHAT_MAX_LENGTH));
     } catch (e) {
       if (controller.signal.aborted) return; // 화면을 떠나서 취소한 것
+      if (leaveIfSessionGone(e, navigate)) return;
       setError(getErrorMessage(e, '음성을 글로 바꾸지 못했어요. 다시 말해 줄래?'));
     } finally {
       if (!controller.signal.aborted) {
@@ -76,9 +78,20 @@ export default function VentChatPage() {
 
   // 하소연을 시작할 때 쓸 캐릭터 정하기 (홈에서 넘겨 준 캐릭터 → 내 첫 캐릭터 → 기본 캐릭터)
   useEffect(() => {
+    // 감정을 이미 확정했다면 서버가 하소연 단계로 되돌릴 수 없으므로 진정하기로 보낸다 (브라우저 뒤로가기 등)
+    if (useVentStore.getState().emotionConfirmed) {
+      navigate(VENT_PATHS.calm, { replace: true });
+      return;
+    }
     useVentStore.getState().restoreMessages(); // 감정 후보에서 ← 로 돌아왔다면 내가 쓴 글을 다시 보여 준다
     startWithCharacter(location.state?.character);
     loadNickname(); // 인사말에서 부를 닉네임 (로그인 상태일 때만 불러온다)
+    // 서버 대화 세션 시작. 실패해도 보내기 때 다시 시도한다
+    ensureSession().catch((e) => {
+      if (!leaveIfSessionGone(e, navigate)) {
+        setError(getErrorMessage(e, '하소연을 시작하지 못했어. 잠시 뒤에 다시 해볼래?'));
+      }
+    });
     // 들어올 때 한 번만. 대화 중 location 이 바뀌어도 다시 정하지 않는다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -107,21 +120,19 @@ export default function VentChatPage() {
     addMessage('user', text);
     setLoading(true);
     try {
-      // 서버에는 원문 전체 대화를 보낸다 (욕설 가리기는 화면 표시만)
-      const history = useVentStore
-        .getState()
-        .messages.filter((m) => !m.local) // 화면에만 있는 말풍선은 서버로 보내지 않는다
-        .map(({ role, content }) => ({ role, content }));
-      const data = await postVent({ messages: history });
+      // 서버에는 방금 쓴 글 한 건만 원문으로 보낸다 (욕설 가리기는 화면 표시만, 서버는 대화를 기억하지 않는다)
+      const sessionId = await ensureSession();
+      const data = await sendMessage(sessionId, text);
 
       if (data.risk === 'DANGER') {
-        // 위기 신호: 대화를 멈추고 원문을 지운 뒤 위기지원안내로 (화면은 아직 없음)
-        reset();
+        // 위기 신호: 대화를 멈추고 원문을 지운 뒤 위기지원안내로
+        endSession();
         navigate(CRISIS_PATH, { replace: true });
         return;
       }
-      addMessage('assistant', data.reply || EMPTY_REPLY);
+      addMessage('assistant', data.empathy || EMPTY_REPLY);
     } catch (e) {
+      if (leaveIfSessionGone(e, navigate)) return;
       setError(getErrorMessage(e, '잠깐 문제가 생겼어. 다시 한 번 말해줄래?'));
     } finally {
       setLoading(false);
@@ -147,10 +158,12 @@ export default function VentChatPage() {
         ...texts,
         ...current.filter((m) => m.role === 'user' && !m.local).map((m) => m.content),
       ];
-      const data = await postVentResult({ texts: allTexts });
-      commitResult(data);
+      const sessionId = await ensureSession();
+      const data = await suggestEmotions(sessionId, allTexts);
+      commitResult(data.candidates);
       navigate(VENT_PATHS.emotions);
     } catch (e) {
+      if (leaveIfSessionGone(e, navigate)) return;
       setError(getErrorMessage(e, '정리하다가 문제가 생겼어. 잠시 뒤에 다시 눌러줘.'));
       setFinishing(false);
     }

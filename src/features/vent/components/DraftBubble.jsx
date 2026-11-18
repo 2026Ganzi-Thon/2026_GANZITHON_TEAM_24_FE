@@ -4,7 +4,7 @@ import ChatBubble from './ChatBubble';
 import styles from './DraftBubble.module.css';
 
 // 내용에 맞춰 높이가 늘어나는 글 상자
-function AutoTextarea({ value, onChange, autoFocus, label }) {
+function AutoTextarea({ value, onChange, autoFocus, label, maxLength = CHAT_MAX_LENGTH }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ function AutoTextarea({ value, onChange, autoFocus, label }) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder="직접 적어 주세요"
-      maxLength={CHAT_MAX_LENGTH}
+      maxLength={maxLength}
       rows={2}
       autoFocus={autoFocus}
       aria-label={label}
@@ -32,7 +32,7 @@ function AutoTextarea({ value, onChange, autoFocus, label }) {
 // AI 초안 말풍선: [라벨 · 태그] + 고칠 수 있는 글 덩어리들
 //   label  : '필요했던, 원했던 반응' 처럼 파란 굵은 제목
 //   tag    : 'AI 초안' | 'AI 제안'. 사용자가 고쳤으면(edited) '내가 고친 글'로 바뀐다
-//   parts  : [{ key, value, onChange, label? }] — editing 이면 각각 말풍선 안에서 바로 글 상자로 바뀐다
+//   parts  : [{ key, value, onChange, label?, maxLength? }]  (maxLength 는 서버 길이 제한) — editing 이면 각각 말풍선 안에서 바로 글 상자로 바뀐다
 export default function DraftBubble({
   label,
   tag = 'AI 초안',
@@ -56,6 +56,7 @@ export default function DraftBubble({
               value={part.value}
               onChange={part.onChange}
               autoFocus={autoFocus && i === 0}
+              maxLength={part.maxLength}
               label={`${part.label ?? label} 고치기`}
             />
           ) : (
