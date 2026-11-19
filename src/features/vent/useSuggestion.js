@@ -26,20 +26,23 @@ export function useSuggestion(key, load, apply) {
     if (useVentStore.getState().drafted[key]) return undefined;
 
     let alive = true;
-    let request = inFlight.get(key);
+    const { sessionId } = useVentStore.getState();
+    const requestKey = `${sessionId}:${key}`;
+    let request = inFlight.get(requestKey);
     if (!request) {
       request = (async () => {
-        const { sessionId } = useVentStore.getState();
-        apply(await load(sessionId));
+        const data = await load(sessionId);
+        if (useVentStore.getState().sessionId !== sessionId) return;
+        apply(data);
         useVentStore.getState().markDrafted(key);
-      })().finally(() => inFlight.delete(key));
-      inFlight.set(key, request);
+      })().finally(() => inFlight.delete(requestKey));
+      inFlight.set(requestKey, request);
     }
 
     request
       .then(() => alive && setState({ loading: false, error: '' }))
       .catch((e) => {
-        if (!alive || leaveIfSessionGone(e, navigate)) return;
+        if (!alive || useVentStore.getState().sessionId !== sessionId || leaveIfSessionGone(e, navigate)) return;
         const message = getErrorMessage(e, FAILED_MESSAGE);
         useVentStore.getState().markDrafted(key, message);
         setState({ loading: false, error: message });

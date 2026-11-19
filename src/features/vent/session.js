@@ -12,14 +12,19 @@ export function ensureSession() {
   const existing = useVentStore.getState().sessionId;
   if (existing) return Promise.resolve(existing);
   if (!creating) {
-    creating = createSession()
+    const request = createSession()
       .then((sessionId) => {
+        if (creating !== request) {
+          deleteSession(sessionId).catch(() => {});
+          throw new DOMException('Vent session was closed', 'AbortError');
+        }
         useVentStore.getState().setSessionId(sessionId);
         return sessionId;
       })
       .finally(() => {
-        creating = null;
+        if (creating === request) creating = null;
       });
+    creating = request;
   }
   return creating;
 }
@@ -27,6 +32,7 @@ export function ensureSession() {
 // 나가기·중단: 서버 세션을 지우도록 보내고(기다리지 않음, 실패해도 15분 뒤 만료) 화면 상태를 비운다
 export function endSession() {
   const { sessionId, reset } = useVentStore.getState();
+  creating = null;
   reset();
   if (sessionId) deleteSession(sessionId).catch(() => {});
 }

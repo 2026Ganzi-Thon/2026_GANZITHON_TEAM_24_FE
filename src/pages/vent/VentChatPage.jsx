@@ -42,9 +42,18 @@ export default function VentChatPage() {
   const inputRef = useRef(null);
   const [transcribing, setTranscribing] = useState(false); // 녹음을 글로 바꾸는 중
   const sttAbortRef = useRef(null);
+  const recordingMode = useRef('vent');
+  const [testAudio, setTestAudio] = useState('');
+  const [testingMic, setTestingMic] = useState(false);
 
   // 녹음이 끝나면 글로 바꿔서 입력창에 이어 붙인다 (바로 보내지 않는다. 마이크를 다시 누르면 계속 이어 붙는다)
   const handleRecorded = async (blob) => {
+    if (recordingMode.current === 'test') {
+      setTestingMic(false);
+      if (blob.size) setTestAudio(URL.createObjectURL(blob));
+      else setError('녹음된 소리가 없어요. 마이크를 다시 확인해 주세요.');
+      return;
+    }
     const controller = new AbortController();
     sttAbortRef.current = controller;
     setError('');
@@ -72,6 +81,20 @@ export default function VentChatPage() {
 
   const mic = useMicrophone({ onRecorded: handleRecorded });
   const listening = mic.status === 'listening';
+  const busy = loading || finishing || transcribing;
+
+  async function startRecording(mode) {
+    if (busy || mic.status !== 'idle') return;
+    recordingMode.current = mode;
+    setError('');
+    setTestingMic(mode === 'test');
+    if (mode === 'test') setTestAudio('');
+    if (!(await mic.start())) setTestingMic(false);
+  }
+
+  useEffect(() => {
+    if (testAudio) return () => URL.revokeObjectURL(testAudio);
+  }, [testAudio]);
 
   // 변환 중에 화면을 떠나면 요청을 취소한다
   useEffect(() => () => sttAbortRef.current?.abort(), []);
@@ -86,12 +109,7 @@ export default function VentChatPage() {
     useVentStore.getState().restoreMessages(); // 감정 후보에서 ← 로 돌아왔다면 내가 쓴 글을 다시 보여 준다
     startWithCharacter(location.state?.character);
     loadNickname(); // 인사말에서 부를 닉네임 (로그인 상태일 때만 불러온다)
-    // 서버 대화 세션 시작. 실패해도 보내기 때 다시 시도한다
-    ensureSession().catch((e) => {
-      if (!leaveIfSessionGone(e, navigate)) {
-        setError(getErrorMessage(e, '하소연을 시작하지 못했어. 잠시 뒤에 다시 해볼래?'));
-      }
-    });
+    // 서버 세션은 첫 메시지 또는 음성 변환을 보낼 때 연다.
     // 들어올 때 한 번만. 대화 중 location 이 바뀌어도 다시 정하지 않는다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -101,7 +119,6 @@ export default function VentChatPage() {
     endRef.current?.scrollIntoView({ block: 'end' });
   }, [messages, loading]);
 
-  const busy = loading || finishing || transcribing;
   // 선택지는 캐릭터가 (실제로) 답한 직후, 또는 돌아와서 글이 되살아난 직후(resumed)에만 보인다.
   // "더 이야기 하고 싶어!"로 나온 안내 말풍선 뒤에는 숨긴다
   const lastMessage = messages[messages.length - 1];
@@ -123,6 +140,7 @@ export default function VentChatPage() {
       // 서버에는 방금 쓴 글 한 건만 원문으로 보낸다 (욕설 가리기는 화면 표시만, 서버는 대화를 기억하지 않는다)
       const sessionId = await ensureSession();
       const data = await sendMessage(sessionId, text);
+      if (useVentStore.getState().sessionId !== sessionId) return;
 
       if (data.risk === 'DANGER') {
         // 위기 신호: 대화를 멈추고 원문을 지운 뒤 위기지원안내로
@@ -160,6 +178,7 @@ export default function VentChatPage() {
       ];
       const sessionId = await ensureSession();
       const data = await suggestEmotions(sessionId, allTexts);
+      if (useVentStore.getState().sessionId !== sessionId) return;
       commitResult(data.candidates);
       navigate(VENT_PATHS.emotions);
     } catch (e) {
@@ -194,7 +213,7 @@ export default function VentChatPage() {
           )}
           {listening && (
             <div className={styles.listening} aria-live="polite">
-              <p className={styles.listeningBubble}>잘 들어볼게!!!</p>
+              <p className={styles.listeningBubble}>{testingMic ? '테스트 녹음 중이에요' : '잘 들어볼게!!!'}</p>
               <div className={styles.listeningCharacter}>
                 <CharacterPortrait character={character} />
               </div>
@@ -210,18 +229,35 @@ export default function VentChatPage() {
               </button>
             </div>
           )}
+          {testAudio && !listening && (
+            <div className={styles.micPreview}>
+              <p>테스트 녹음은 이 화면에서만 들을 수 있어요.</p>
+              <audio controls src={testAudio} aria-label="테스트 녹음 재생" />
+              <button type="button" onClick={() => setTestAudio('')}>테스트 녹음 지우기</button>
+            </div>
+          )}
+          <div className={styles.supportActions}>
+            <button type="button" disabled={busy || mic.status !== 'idle'} onClick={() => startRecording('test')}>
+              마이크 테스트
+            </button>
+            <button type="button" onClick={() => {
+              endSession();
+              navigate(CRISIS_PATH, { replace: true });
+            }}>
+              도움이 필요해요
+            </button>
+          </div>
           <PrivacyNotice />
           <ChatInput
             value={input}
             onChange={setInput}
             onSend={handleSend}
             disabled={busy || mic.status === 'requesting'}
-            onMicClick={mic.start}
+            onMicClick={() => startRecording('vent')}
             listening={listening}
             onStop={mic.stop}
             placeholder={transcribing ? '글로 바꾸는 중…' : undefined}
             inputRef={inputRef}
-            footerNote="여기 적은 내용은 어디에도 저장되지 않아요."
           />
         </div>
 

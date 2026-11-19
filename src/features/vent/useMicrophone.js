@@ -78,7 +78,7 @@ export function useMicrophone({ onRecorded } = {}) {
     // http 로 휴대폰에서 접속하는 등 보안 연결이 아니면 마이크 API 자체가 없다
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       setError('이 환경에서는 마이크를 쓸 수 없어요. (https 주소나 localhost에서만 가능해요)');
-      return;
+      return false;
     }
 
     setStatus('requesting');
@@ -87,7 +87,7 @@ export function useMicrophone({ onRecorded } = {}) {
       if (!aliveRef.current) {
         // 권한 창이 떠 있는 동안 화면을 떠났으면 바로 끈다
         stream.getTracks().forEach((track) => track.stop());
-        return;
+        return false;
       }
       streamRef.current = stream;
 
@@ -101,9 +101,10 @@ export function useMicrophone({ onRecorded } = {}) {
       recorder.start();
       stopTimerRef.current = window.setTimeout(stop, MAX_RECORDING_MS);
       setStatus('listening');
+      return true;
     } catch (e) {
       discardRecording();
-      if (!aliveRef.current) return;
+      if (!aliveRef.current) return false;
       setStatus('idle');
       if (e?.name === 'NotAllowedError' || e?.name === 'SecurityError') {
         setError('마이크 권한이 필요해요. 브라우저 설정에서 이 사이트의 마이크 접근을 허용해 주세요.');
@@ -112,6 +113,7 @@ export function useMicrophone({ onRecorded } = {}) {
       } else {
         setError('마이크를 켜지 못했어요. 다시 시도해 주세요.');
       }
+      return false;
     }
   }, [stop]);
 

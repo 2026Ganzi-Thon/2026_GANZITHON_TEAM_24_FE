@@ -104,10 +104,12 @@ export const useVentStore = create((set) => ({
 
   // 서버에 감정을 확정한 뒤: 원문(texts)·대화(messages)를 지우고, 하소연 단계로 돌아갈 수 없게 표시한다
   // (하소연 글은 서버 초안 요청에 상황으로 다시 필요해서 situationText 로 최근 1000자만 남긴다)
-  markEmotionConfirmed: (emotionText = '') =>
+  markEmotionConfirmed: (emotionText, selectedEmotions) =>
     set((s) => ({
       emotionConfirmed: true,
       emotionText,
+      selectedEmotions,
+      result: { ...s.result, emotions: [] },
       situationText: s.texts.join('\n').slice(-SITUATION_MAX_LENGTH).trim(),
       texts: [],
       messages: [],

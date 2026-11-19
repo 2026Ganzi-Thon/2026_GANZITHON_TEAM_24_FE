@@ -63,6 +63,40 @@
   color: var(--color-danger);
 }
 
+.supportActions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.supportActions button,
+.micPreview button {
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary-strong);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.supportActions button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.micPreview {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-inline: 16px;
+  font-size: var(--font-size-sm);
+}
+
+.micPreview audio {
+  width: min(100%, 300px);
+}
+
 /* 음성 듣는 중 */
 .listening {
   display: flex;

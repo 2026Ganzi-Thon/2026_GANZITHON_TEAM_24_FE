@@ -12,13 +12,11 @@ import api from '../../lib/api';
 //   DELETE S                              감정 버리기 (200 완료 / 202 처리 중이라 다시 호출)
 //   (모든 응답은 { success, data, error } 로 오고, 여기서는 data 만 돌려준다)
 //
-// 아직 연결하지 않은 것: 원했던 반응·3인칭·만약-그러면 (S/needs, reflection, summary, plan).
-//   서버가 사용자가 새로 적은 상황을 요구해서 입력 방식이 정해진 뒤에 붙인다.
-//
 // VITE_VENT_MOCK=true 로 켜면 서버 없이 가짜 응답으로 화면 흐름을 볼 수 있다. (기본: 실제 서버)
 
-const USE_MOCK = import.meta.env.VITE_VENT_MOCK === 'true';
-const AI_TIMEOUT = 35000; // AI 응답은 최대 30~45초라 여유를 둔다 (lib/api.js 기본 10초로는 부족)
+export const USE_MOCK = import.meta.env.VITE_VENT_MOCK === 'true';
+const AI_TIMEOUT = 35000;
+const STT_TIMEOUT = 55000; // 백엔드의 Groq 연결 5초와 응답 읽기 45초에 여유를 둔다
 const SESSIONS = '/api/v1/vent/sessions';
 const EMOTIONS_MAX_LENGTH = 2000; // 서버 규칙: 감정 후보 요청은 합쳐서 최대 2000자
 const DELETE_RETRY_LIMIT = 3; // 감정 버리기가 202(처리 중)일 때 다시 부르는 최대 횟수
@@ -108,21 +106,33 @@ export async function confirmPlan(sessionId, { ifSituation, thenAction }) {
 
 // 서버 세션 삭제. 서버 상태가 비워졌으면 true.
 //   - 200: 완료. 202: 처리 중인 요청이 남아 있어 같은 DELETE 를 잠시 뒤 다시 부른다 (끝까지 202 면 false)
-//   - 404/410: 이미 없거나 만료되어 정리됨 → true
+//   - 404/410: 삭제 확인 기록이 없어 완료 여부를 확인할 수 없음 → false
 //   - 그 밖의 오류는 던진다 (부르는 쪽에서 실패로 처리)
 export async function deleteSession(sessionId) {
   if (USE_MOCK) return true;
   for (let attempt = 0; attempt < DELETE_RETRY_LIMIT; attempt += 1) {
     try {
       const res = await api.delete(`${SESSIONS}/${sessionId}`);
-      if (res.status === 200) return true;
+      if (res.status === 200) return res.data?.data?.serverStateCleared === true
+        && res.data?.data?.requestsSettled === true;
     } catch (error) {
-      if (isSessionGone(error)) return true;
+      if (isSessionGone(error) || [404, 410].includes(error.response?.status)) return false;
       throw error;
     }
     await sleep(DELETE_RETRY_DELAY);
   }
   return false;
+}
+
+// 탭을 닫거나 새로고침하면 응답을 기다릴 수 없으므로 종료 요청만 보낸다.
+export function releaseSessionOnPageHide(sessionId, token) {
+  if (USE_MOCK || !sessionId || !token) return;
+  const url = api.getUri({ url: `${SESSIONS}/${sessionId}` });
+  void fetch(url, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+    keepalive: true,
+  }).catch(() => {});
 }
 
 // 음성 → 글. 녹음 파일(blob)을 보내고 변환된 text 를 돌려준다. (하소연 단계의 세션 필요)
@@ -144,7 +154,7 @@ export async function postStt(blob, { sessionId, signal } = {}) {
   form.append('file', blob, `voice.${AUDIO_EXTENSIONS[baseType] ?? 'webm'}`);
   form.append('sessionId', sessionId);
   const res = await api.post('/api/v1/stt', form, {
-    timeout: AI_TIMEOUT,
+    timeout: STT_TIMEOUT,
     signal,
     headers: { 'Content-Type': 'multipart/form-data' },
   });

@@ -29,13 +29,14 @@ export default function DiscardPage() {
   if (!result && !leavingRef.current) return <RestartRedirect />;
 
   // 모션이 끝난 뒤에 비운다 (재생 중에는 화면 내용이 그대로 보여야 하므로)
-  const handleComplete = (usedMethod) => {
+  const handleComplete = async (usedMethod) => {
     if (leavingRef.current) return;
     leavingRef.current = true;
 
-    if (discardSession()) {
+    const { sessionId } = useVentStore.getState();
+    if (await discardSession()) {
       navigate(VENT_PATHS.done, { replace: true, state: { discarded: true, method: usedMethod } });
-    } else {
+    } else if (useVentStore.getState().sessionId === sessionId) {
       navigate(VENT_PATHS.deleteFailed, { replace: true });
     }
   };

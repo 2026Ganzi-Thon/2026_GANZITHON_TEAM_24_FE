@@ -18,6 +18,9 @@ export default function ChatInput({
   placeholder = '지금, 털어놓고 싶은 감정을 말해보세요',
   footerNote,
   onMicClick,
+  showMic = true,
+  maxLength = CHAT_MAX_LENGTH,
+  inputLabel = '하고 싶은 말',
   listening = false,
   onStop,
   inputRef,
@@ -32,7 +35,7 @@ export default function ChatInput({
   return (
     <form className={styles.wrap} onSubmit={handleSubmit}>
       <div className={styles.row}>
-        {!listening && (
+        {showMic && !listening && (
           <button
             type="button"
             className={styles.mic}
@@ -49,9 +52,9 @@ export default function ChatInput({
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
-          maxLength={CHAT_MAX_LENGTH}
+          maxLength={maxLength}
           disabled={blocked}
-          aria-label="하고 싶은 말"
+          aria-label={inputLabel}
           autoComplete="off"
         />
         {listening ? (

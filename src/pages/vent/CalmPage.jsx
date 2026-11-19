@@ -11,18 +11,18 @@ import PrivacyNotice from '../../features/vent/components/PrivacyNotice';
 import VentHeader from '../../features/vent/components/VentHeader';
 import styles from './Vent.module.css';
 
-// 3단계: 진정하기 (API 없음, 고정 문장, 건너뛰기 가능)
+// 3단계: 고정 진정 안내를 보여 주고 완료 상태를 서버에 보낸다.
 export default function CalmPage() {
   const navigate = useNavigate();
   const result = useVentStore((s) => s.result);
-  const selected = useVentStore((s) => s.selectedEmotions);
+  const emotionConfirmed = useVentStore((s) => s.emotionConfirmed);
   const character = useSelectedCharacter();
   const [retried, setRetried] = useState(false); // "아니 아직.." 을 눌렀는지
   const [completing, setCompleting] = useState(false);
   const [error, setError] = useState('');
 
   // 앞 단계를 거치지 않았거나 새로고침했으면 처음부터 (감정 후보 화면과 같은 규칙)
-  if (!result || selected.length === 0) return <RestartRedirect />;
+  if (!result || !emotionConfirmed) return <RestartRedirect />;
 
   // "진정 됐어!" → 서버에 진정 완료를 알리고 다음 화면(원했던 반응)으로
   const handleCalm = async () => {
@@ -30,8 +30,9 @@ export default function CalmPage() {
     setError('');
     setCompleting(true);
     try {
-      await completeCalming(useVentStore.getState().sessionId, false);
-      if (AFTER_CALM_PATH) navigate(AFTER_CALM_PATH);
+      const { sessionId } = useVentStore.getState();
+      await completeCalming(sessionId, false);
+      if (useVentStore.getState().sessionId === sessionId) navigate(AFTER_CALM_PATH);
     } catch (e) {
       if (leaveIfSessionGone(e, navigate)) return;
       setError(getErrorMessage(e, '잠깐 문제가 생겼어. 다시 눌러줄래?'));

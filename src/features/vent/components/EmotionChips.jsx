@@ -1,26 +1,26 @@
 import { UNSURE_LABEL } from '../constants';
 import styles from './EmotionChips.module.css';
 
-function Chip({ label, active, unsure = false, onClick }) {
+function Chip({ label, active, unsure = false, onClick, disabled }) {
   const classes = [styles.chip, unsure ? styles.unsure : styles.emotion, active && styles.active]
     .filter(Boolean)
     .join(' ');
   return (
-    <button type="button" className={classes} aria-pressed={active} onClick={() => onClick(label)}>
+    <button type="button" className={classes} aria-pressed={active} disabled={disabled} onClick={() => onClick(label)}>
       {label}
     </button>
   );
 }
 
 // 감정 후보 카드. emotions 는 서버가 준 후보, "해당없음"은 항상 따로 붙는다.
-export default function EmotionChips({ emotions, selected, onToggle }) {
+export default function EmotionChips({ emotions, selected, onToggle, disabled }) {
   return (
     <section className={styles.card} aria-label="감정 후보">
       <h2 className={styles.title}>지금 어떤 감정에 가장 가까워?</h2>
       {emotions.length > 0 && (
         <div className={styles.chips}>
           {emotions.map((label) => (
-            <Chip key={label} label={label} active={selected.includes(label)} onClick={onToggle} />
+            <Chip key={label} label={label} active={selected.includes(label)} onClick={onToggle} disabled={disabled} />
           ))}
         </div>
       )}
@@ -30,6 +30,7 @@ export default function EmotionChips({ emotions, selected, onToggle }) {
           unsure
           active={selected.includes(UNSURE_LABEL)}
           onClick={onToggle}
+          disabled={disabled}
         />
       </div>
     </section>
