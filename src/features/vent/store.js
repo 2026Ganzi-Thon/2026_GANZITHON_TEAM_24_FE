@@ -5,6 +5,7 @@ import { MAX_EMOTIONS, SITUATION_MAX_LENGTH, UNSURE_LABEL } from './constants';
 // 새로고침하면 사라지고, 나가기/버리기에서 reset()으로 통째로 비운다.
 const initialState = {
   sessionId: null, // 서버 대화 세션 ID (메모리에만. 새로고침하면 잃는다)
+  reviewingEmotions: false,
   emotionConfirmed: false, // 감정 확정 뒤에는 서버가 하소연 단계로 되돌아갈 수 없다
   messages: [], // 하소연 대화 [{ id, role: 'user' | 'assistant', content, at, local }]
   //                local: true 는 화면에만 보이는 말풍선("더 이야기 하고 싶어!" 등). 서버로 보내지 않는다
@@ -33,6 +34,22 @@ export const useVentStore = create((set) => ({
   setLoading: (loading) => set({ loading }),
 
   setSessionId: (sessionId) => set({ sessionId }),
+
+  // 완료 뒤 남은 감정을 살펴본다. 삭제한 원문·결과를 복원하지 않고 현재 기분으로 시작한다.
+  startEmotionReview: (candidates, context) =>
+    set((s) => ({
+      ...initialState,
+      sessionId: s.sessionId,
+      reviewingEmotions: true,
+      texts: [context],
+      result: {
+        emotions: candidates ?? [],
+        situation: '',
+        needs: [],
+        wantedReaction: '',
+        plan: { if: '', then: '' },
+      },
+    })),
 
   // "다 털어놓은 것 같아" 직후: 서버가 준 감정 후보를 저장하고, AI 답장은 지우고 사용자 글만 texts로 남긴다.
   // 서버가 아직 주지 않는 칸(상황·필요했던 것·원했던 반응·계획)은 빈 값이라 해당 화면은 직접 쓰는 상태로 열린다.

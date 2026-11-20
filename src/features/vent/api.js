@@ -130,7 +130,11 @@ export function releaseSessionOnPageHide(sessionId, token) {
   const url = api.getUri({ url: `${SESSIONS}/${sessionId}` });
   void fetch(url, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(api.defaults.headers['ngrok-skip-browser-warning']
+        ? { 'ngrok-skip-browser-warning': 'true' } : {}),
+    },
     keepalive: true,
   }).catch(() => {});
 }

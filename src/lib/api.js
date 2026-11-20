@@ -2,10 +2,15 @@ import axios from 'axios';
 import { useAuthStore } from '../features/auth/useAuth';
 
 // 모든 API 요청은 이 인스턴스를 사용한다
+const baseURL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080' : undefined);
+const usesNgrok = baseURL && /\.(ngrok-free\.dev|ngrok-free\.app|ngrok\.io)$/.test(new URL(baseURL, window.location.origin).hostname);
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080' : undefined),
+  baseURL,
   timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    ...(usesNgrok ? { 'ngrok-skip-browser-warning': 'true' } : {}),
+  },
 });
 
 // 토큰이 있으면 요청 헤더에 붙인다
